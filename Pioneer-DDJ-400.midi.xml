@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MixxxMIDIPreset schemaVersion="1" mixxxVersion="2.2">
     <info>
-        <name>Pioneer DDJ-400 Custom</name>
+        <name>Pioneer DDJ-400 4 Decks</name>
         <author>Warker/nschloe/dj3730/jusko/apmiller</author>
-        <description>Midi Mapping for the Pioneer DDJ-400</description>
+        <description>Midi Mapping for the Pioneer DDJ-400 with 4 Deck Control</description>
         <manual>pioneer_ddj_400</manual>
         <forums>https://mixxx.discourse.group/t/pioneer-ddj-400/17476</forums>
     </info>
@@ -79,7 +79,7 @@
                 <status>0x90</status>
                 <midino>0x3F</midino>
                 <options>
-                  <Script-Binding/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
@@ -89,89 +89,89 @@
                 <status>0x91</status>
                 <midino>0x3F</midino>
                 <options>
-                  <Script-Binding/>
+                    <Script-Binding/>
                 </options>
             </control>
 
             <control>
                 <description>PLAY/PAUSE (DECK1) - press - Play/Pause</description>
                 <group>[Channel1]</group>
-                <key>PioneerDDJ400.playButton</key>
+                <key>PioneerDDJ400.playPressed</key>
                 <status>0x90</status>
                 <midino>0x0B</midino>
                 <options>
-                  <Script-Binding/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PLAY/PAUSE +SHIFT (DECK1) - press - Reverse playback in Slip Mode while held (Censor)</description>
                 <group>[Channel1]</group>
-                <key>reverseroll</key>
+                <key>PioneerDDJ400.reverseRoll</key>
                 <status>0x90</status>
                 <midino>0x47</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PLAY/PAUSE (DECK2) - press - Play/Pause</description>
                 <group>[Channel2]</group>
-                <key>play</key>
+                <key>PioneerDDJ400.playPressed</key>
                 <status>0x91</status>
                 <midino>0x0B</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PLAY/PAUSE +SHIFT (DECK2) - press - Reverse playback in Slip Mode while held (Censor)</description>
                 <group>[Channel2]</group>
-                <key>reverseroll</key>
+                <key>PioneerDDJ400.reverseRoll</key>
                 <status>0x91</status>
                 <midino>0x47</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 
             <control>
                 <description>CUE (DECK1) - press - Set/Call Cue, Back Cue</description>
                 <group>[Channel1]</group>
-                <key>cue_default</key>
+                <key>PioneerDDJ400.cuePressed</key>
                 <status>0x90</status>
                 <midino>0x0C</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>CUE +SHIFT (DECK1) - press - Jump to track start</description>
                 <group>[Channel1]</group>
-                <key>start_play</key>
+                <key>PioneerDDJ400.startPlay</key>
                 <status>0x90</status>
                 <midino>0x48</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>CUE (DECK2) - press - Set/Call Cue, Back Cue</description>
                 <group>[Channel2]</group>
-                <key>cue_default</key>
+                <key>PioneerDDJ400.cuePressed</key>
                 <status>0x91</status>
                 <midino>0x0C</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>CUE +SHIFT (DECK2) - press - Jump to track start</description>
                 <group>[Channel2]</group>
-                <key>start_play</key>
+                <key>PioneerDDJ400.startPlay</key>
                 <status>0x91</status>
                 <midino>0x48</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 

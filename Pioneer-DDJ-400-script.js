@@ -359,6 +359,41 @@ PioneerDDJ400.beatFxChannel = function(_channel, control, value, _status, group)
 };
 
 //
+// Play/Pause button
+//
+
+PioneerDDJ400.playPressed = function(_channel, _control, value, _status, group) {
+  group = PioneerDDJ400.decks[group]
+  if (value) {
+    engine.setValue(group, 'play', !(engine.getValue(group, 'play')))
+  };
+};
+
+PioneerDDJ400.reverseRoll = function(_channel, _control, value, _status, group) {
+  // Only active while play/pause +shift is held
+  group = PioneerDDJ400.decks[group]
+  engine.setValue(group, 'reverseroll', value)
+};
+
+//
+// Cue button
+//
+
+PioneerDDJ400.cuePressed = function(_channel, _control, value, _status, group) {
+  group = PioneerDDJ400.decks[group]
+  if (value) {
+    engine.setValue(group, 'cue_default', value)
+  };
+};
+
+PioneerDDJ400.startPlay = function(_channel, _control, value, _status, group) {
+  group = PioneerDDJ400.decks[group]
+  if (value) {
+    engine.setValue(group, 'start_play', value)
+  };
+}
+
+//
 // Loop IN/OUT ADJUST
 //
 
@@ -552,17 +587,6 @@ PioneerDDJ400.jogTouch = function(channel, _control, value, _status, group) {
     } else {
         engine.scratchDisable(deckNum);
     }
-};
-
-//
-// Play/Pause button
-//
-
-PioneerDDJ400.playButton = function(_channel, _control, value, _status, group) {
-    group = PioneerDDJ400.decks[group]
-    if (value) {
-      engine.setValue(group, 'play', !(engine.getValue(group, 'play')))
-    };
 };
 
 //
