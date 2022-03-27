@@ -54,78 +54,97 @@ PioneerDDJ400.lights = {
         status: 0x94,
         data1: 0x43,
     },
-    deck1: {
-        vuMeter: {
-            status: 0xB0,
-            data1: 0x02,
-        },
-        playPause: {
-            status: 0x90,
-            data1: 0x0B,
-        },
-        shiftPlayPause: {
-            status: 0x90,
-            data1: 0x47,
-        },
-        cue: {
-            status: 0x90,
-            data1: 0x0C,
-        },
-        shiftCue: {
-            status: 0x90,
-            data1: 0x48,
-        },
-    },
-    deck2: {
-        vuMeter: {
-            status: 0xB0,
-            data1: 0x02,
-        },
-        playPause: {
-            status: 0x91,
-            data1: 0x0B,
-        },
-        shiftPlayPause: {
-            status: 0x91,
-            data1: 0x47,
-        },
-        cue: {
-            status: 0x91,
-            data1: 0x0C,
-        },
-        shiftCue: {
-            status: 0x91,
-            data1: 0x48,
-        },
-    },
-  deckToggle: {
     '[Channel1]': {
-      status: 0x90,
-      midinos: [0x4D, 0x50]
-    },
-    '[Channel3]': {
-      status: 0x90,
-      midinos: [0x4D, 0x50]
+        vuMeter: {
+            status: 0xB0,
+            data1: 0x02,
+        },
+        playPause: {
+            status: 0x90,
+            data1: 0x0B,
+        },
+        shiftPlayPause: {
+            status: 0x90,
+            data1: 0x47,
+        },
+        cue: {
+            status: 0x90,
+            data1: 0x0C,
+        },
+        shiftCue: {
+            status: 0x90,
+            data1: 0x48,
+        },
+        deckToggle: { // RELOOP/EXIT
+          status: 0x90,
+          midinos: [0x4D, 0x50]
+        },
+        hotcuePad: function(padNum) {
+          var status = PioneerDDJ400.shiftButtonDown[0] ? 0x98 : 0x97;
+          var data1 = 0x00 + (padNum - 1);
+          return { status: status, data1: data1 };
+        }
     },
     '[Channel2]': {
-      status: 0x91,
-      midinos: [0x4D, 0x50]
-    },
-    '[Channel4]': {
-      status: 0x91,
-      midinos: [0x4D, 0x50]
+        vuMeter: {
+            status: 0xB0,
+            data1: 0x02,
+        },
+        playPause: {
+            status: 0x91,
+            data1: 0x0B,
+        },
+        shiftPlayPause: {
+            status: 0x91,
+            data1: 0x47,
+        },
+        cue: {
+            status: 0x91,
+            data1: 0x0C,
+        },
+        shiftCue: {
+            status: 0x91,
+            data1: 0x48,
+        },
+        deckToggle: { // RELOOP/EXIT
+          status: 0x91,
+          midinos: [0x4D, 0x50]
+        },
+        hotcuePad: function(padNum) {
+          var status = PioneerDDJ400.shiftButtonDown[1] ? 0x9A : 0x99;
+          var data1 = 0x00 + (padNum - 1);
+          return { status: status, data1: data1 };
+        }
     }
-  }
 };
 
-// 4 deck controll
+// Copy Channel lights to their respective toggle channel
+PioneerDDJ400.lights['[Channel3]'] = PioneerDDJ400.lights['[Channel1]']
+PioneerDDJ400.lights['[Channel4]'] = PioneerDDJ400.lights['[Channel2]']
+
+// This is to faciliate 4 deck control. For example, deck 1 (ie, channel1) can
+// also control channel3 when toggled (See toggleDeck below). And deck 2 can
+// control channel4.
 PioneerDDJ400.decks = {
   '[Channel1]': '[Channel1]',
   '[Channel2]': '[Channel2]'
 };
 
+PioneerDDJ400.activeDeckForGroup = function(group) {
+  return _.find(_.keys(PioneerDDJ400.decks), function(key) {
+    return PioneerDDJ400.decks[key] === group;
+  });
+};
+
+PioneerDDJ400.channels = [
+  '[Channel1]',
+  '[Channel2]',
+  '[Channel3]',
+  '[Channel4]',
+];
+
 PioneerDDJ400.deckNumberFromGroup = function(group) {
-  return parseInt(/\[Channel(\d)\]/.exec(PioneerDDJ400.decks[group])[1]);
+  return parseInt(script.channelRegEx.exec(PioneerDDJ400.decks[group])[1]);
 };
 
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
@@ -139,19 +158,34 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
       newDeckNumber = deckNumber - 2
     };
 
-    PioneerDDJ400.decks[group] = '[Channel' + newDeckNumber + ']';
+    var newChannel = '[Channel' + newDeckNumber + ']';
+    PioneerDDJ400.decks[group] = newChannel;
 
-    print(JSON.stringify(PioneerDDJ400.decks[group]));
+    PioneerDDJ400.initDeck(newChannel);
+  };
+};
 
-    var lightConfig = PioneerDDJ400.lights.deckToggle[PioneerDDJ400.decks[group]];
+PioneerDDJ400.initDeck = function(group) {
+  var deckToggleLight = PioneerDDJ400.lights[group].deckToggle
+  var deckNumber = group.match(script.channelRegEx)[1]
 
-    lightConfig.midinos.forEach(function(midino) {
-      midi.sendShortMsg(
-        lightConfig.status,
-        midino,
-        newDeckNumber > 2 ? 0x7f : 0x00
-      );
-    });
+  // RELOOP/EXIT is lit for deck 1 when deck 3 is active and for deck 2 when
+  // deck 4 is active.
+  deckToggleLight.midinos.forEach(function(midino) {
+    midi.sendShortMsg(
+      deckToggleLight.status,
+      midino,
+      deckNumber > 2 ? 0x7f : 0x00
+    );
+  });
+
+  PioneerDDJ400.initHotcueLights(null, group);
+};
+
+PioneerDDJ400.initHotcueLights = function(value, group, control) {
+  for (i = 1; i <= 8; i++) {
+    var light = PioneerDDJ400.lights[group].hotcuePad(i);
+    PioneerDDJ400.toggleLight(light, engine.getValue(group, 'hotcue_' + i + '_enabled'));
   };
 };
 
@@ -210,6 +244,17 @@ PioneerDDJ400.toggleLight = function(midiIn, active) {
     midi.sendShortMsg(midiIn.status, midiIn.data1, active ? 0x7F : 0);
 };
 
+PioneerDDJ400.onTrackLoaded = function(value, group, control) {
+  var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
+  PioneerDDJ400.trackLoadedLED(value, activeDeck, control);
+  PioneerDDJ400.initDeck(group);
+};
+
+PioneerDDJ400.onEject = function(_value, group, _control) {
+  var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
+  PioneerDDJ400.initDeck(group);
+};
+
 //
 // Init
 //
@@ -220,11 +265,9 @@ PioneerDDJ400.init = function() {
     engine.makeConnection("[Channel1]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
     engine.makeConnection("[Channel2]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
 
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights.deck1.vuMeter, false);
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights.deck2.vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel1]'].vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel2]'].vuMeter, false);
 
-    engine.softTakeover("[Channel1]", "rate", true);
-    engine.softTakeover("[Channel2]", "rate", true);
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect1]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect2]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect3]", "meta", true);
@@ -234,8 +277,11 @@ PioneerDDJ400.init = function() {
         engine.makeConnection("[Sampler" + i + "]", "play", PioneerDDJ400.samplerPlayOutputCallbackFunction);
     }
 
-    engine.makeConnection("[Channel1]", "track_loaded", PioneerDDJ400.trackLoadedLED);
-    engine.makeConnection("[Channel2]", "track_loaded", PioneerDDJ400.trackLoadedLED);
+    PioneerDDJ400.channels.forEach(function(channel) {
+      engine.softTakeover(channel, "rate", true);
+      engine.makeConnection(channel, "track_loaded", PioneerDDJ400.onTrackLoaded);
+      engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
+    });
 
     // play the "track loaded" animation on both decks at startup
     midi.sendShortMsg(0x9F, 0x00, 0x7F);
@@ -244,6 +290,7 @@ PioneerDDJ400.init = function() {
     PioneerDDJ400.setLoopButtonLights(0x90, 0x7F);
     PioneerDDJ400.setLoopButtonLights(0x91, 0x7F);
 
+    // TODO figure out that this shit is all about
     engine.makeConnection("[Channel1]", "loop_enabled", PioneerDDJ400.loopToggle);
     engine.makeConnection("[Channel2]", "loop_enabled", PioneerDDJ400.loopToggle);
 
@@ -254,6 +301,12 @@ PioneerDDJ400.init = function() {
 
     // query the controller for current control positions on startup
     midi.sendSysexMsg([0xF0, 0x00, 0x40, 0x05, 0x00, 0x00, 0x02, 0x06, 0x00, 0x03, 0x01, 0xf7], 12);
+
+    // Initialize Hotcue pads
+    for (var i = 1; i <= 8; i++) {
+      PioneerDDJ400['hotcue' + i + 'Activate'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_activate', i);
+      PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
+    }
 };
 
 //
@@ -593,10 +646,13 @@ PioneerDDJ400.jogTouch = function(channel, _control, value, _status, group) {
 // Shift button
 //
 
-PioneerDDJ400.shiftPressed = function(channel, _control, value, _status, _group) {
+PioneerDDJ400.shiftPressed = function(channel, _control, value, _status, group) {
+    group = PioneerDDJ400.decks[group]
     PioneerDDJ400.shiftButtonDown[channel] = value === 0x7F;
-};
 
+    // Make sure active hotcue lights remain lit when shift is pressed.
+    PioneerDDJ400.initHotcueLights(null, group);
+};
 
 //
 // Tempo sliders
@@ -621,6 +677,19 @@ PioneerDDJ400.tempoSliderLSB = function(channel, control, value, status, group) 
         1 - (fullValue / 0x2000)
     );
 };
+
+//
+// Hot cue pads
+//
+
+PioneerDDJ400.hotcuePadFunction = function(property, padNum) {
+  return function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group];
+    var light = PioneerDDJ400.lights[group].hotcuePad(padNum);
+    engine.setValue(deck, property, value);
+    PioneerDDJ400.toggleLight(light, engine.getValue(deck, 'hotcue_' + padNum + '_enabled'));
+  }
+}
 
 //
 // Beat Jump mode
@@ -750,8 +819,8 @@ PioneerDDJ400.quickJumpBack = function(_channel, _control, value, _status, group
 
 PioneerDDJ400.shutdown = function() {
     // reset vumeter
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights.deck1.vuMeter, false);
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights.deck2.vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel1]'].vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel2]'].vuMeter, false);
 
     // housekeeping
     // turn off all Sampler LEDs
