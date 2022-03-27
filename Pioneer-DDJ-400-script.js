@@ -147,6 +147,7 @@ PioneerDDJ400.deckNumberFromGroup = function(group) {
   return parseInt(script.channelRegEx.exec(PioneerDDJ400.decks[group])[1]);
 };
 
+// TODO: consider using BEAT SYNC + Shift
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
   if (value === 127) {
     var deckNumber = PioneerDDJ400.deckNumberFromGroup(group);
@@ -180,6 +181,7 @@ PioneerDDJ400.initDeck = function(group) {
   });
 
   PioneerDDJ400.initHotcueLights(null, group);
+  PioneerDDJ400.initLoopLights(group);
 };
 
 PioneerDDJ400.initHotcueLights = function(value, group, control) {
@@ -187,6 +189,12 @@ PioneerDDJ400.initHotcueLights = function(value, group, control) {
     var light = PioneerDDJ400.lights[group].hotcuePad(i);
     PioneerDDJ400.toggleLight(light, engine.getValue(group, 'hotcue_' + i + '_enabled'));
   };
+};
+
+PioneerDDJ400.initLoopLights= function(group) {
+  var control = 'loop_enabled';
+  var loopEnabled = engine.getValue(group, control);
+  PioneerDDJ400.onLoopEnabled(loopEnabled, group, control);
 };
 
 // Store timer IDs
@@ -255,32 +263,47 @@ PioneerDDJ400.onEject = function(_value, group, _control) {
   PioneerDDJ400.initDeck(group);
 };
 
+PioneerDDJ400.onLoopEnabled = function(value, group, control) {
+  var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
+  PioneerDDJ400.loopToggle(value, activeDeck, control);
+}
+
 //
 // Init
 //
 
 PioneerDDJ400.init = function() {
-    engine.setValue("[EffectRack1_EffectUnit1]", "show_focus", 1);
-
+    // VuMeter
     engine.makeConnection("[Channel1]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
     engine.makeConnection("[Channel2]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
 
     PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel1]'].vuMeter, false);
     PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel2]'].vuMeter, false);
 
+    // EffectRack
+    engine.setValue("[EffectRack1_EffectUnit1]", "show_focus", 1);
+
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect1]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect2]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect3]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1]", "mix", true);
 
+    for (i = 1; i <= 3; i++) {
+      engine.makeConnection("[EffectRack1_EffectUnit1_Effect" + i +"]", "enabled", PioneerDDJ400.toggleFxLight);
+    }
+    engine.makeConnection("[EffectRack1_EffectUnit1]", "focused_effect", PioneerDDJ400.toggleFxLight);
+
+    // Sampler
     for (var i = 1; i <= 16; ++i) {
         engine.makeConnection("[Sampler" + i + "]", "play", PioneerDDJ400.samplerPlayOutputCallbackFunction);
     }
 
+    // Loop over channels and setup connection callbacks, etc.
     PioneerDDJ400.channels.forEach(function(channel) {
       engine.softTakeover(channel, "rate", true);
       engine.makeConnection(channel, "track_loaded", PioneerDDJ400.onTrackLoaded);
       engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
+      engine.makeConnection(channel, "loop_enabled", PioneerDDJ400.onLoopEnabled);
     });
 
     // play the "track loaded" animation on both decks at startup
@@ -290,19 +313,10 @@ PioneerDDJ400.init = function() {
     PioneerDDJ400.setLoopButtonLights(0x90, 0x7F);
     PioneerDDJ400.setLoopButtonLights(0x91, 0x7F);
 
-    // TODO figure out that this shit is all about
-    engine.makeConnection("[Channel1]", "loop_enabled", PioneerDDJ400.loopToggle);
-    engine.makeConnection("[Channel2]", "loop_enabled", PioneerDDJ400.loopToggle);
-
-    for (i = 1; i <= 3; i++) {
-        engine.makeConnection("[EffectRack1_EffectUnit1_Effect" + i +"]", "enabled", PioneerDDJ400.toggleFxLight);
-    }
-    engine.makeConnection("[EffectRack1_EffectUnit1]", "focused_effect", PioneerDDJ400.toggleFxLight);
-
     // query the controller for current control positions on startup
     midi.sendSysexMsg([0xF0, 0x00, 0x40, 0x05, 0x00, 0x00, 0x02, 0x06, 0x00, 0x03, 0x01, 0xf7], 12);
 
-    // Initialize Hotcue pads
+    // Initialize hotcue pads
     for (var i = 1; i <= 8; i++) {
       PioneerDDJ400['hotcue' + i + 'Activate'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_activate', i);
       PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
