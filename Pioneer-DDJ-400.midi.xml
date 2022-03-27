@@ -410,66 +410,66 @@
             </control>
 
             <control>
-                <description>LOOP IN/4 BEAT (DECK1) - press - Set loop in</description>
+                <description>LOOP IN (DECK1) - press - Set loop in</description>
                 <group>[Channel1]</group>
-                <key>loop_in</key>
+                <key>PioneerDDJ400.loopIn</key>
                 <status>0x90</status>
                 <midino>0x10</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 
             <control>
-                <description>LOOP IN/4 BEAT (DECK2) - press - Set loop in</description>
+                <description>LOOP IN (DECK2) - press - Set loop in</description>
                 <group>[Channel2]</group>
-                <key>loop_in</key>
+                <key>PioneerDDJ400.loopIn</key>
                 <status>0x91</status>
                 <midino>0x10</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 
             <control>
                 <description>LOOP OUT (DECK1) - press - Set loop out</description>
                 <group>[Channel1]</group>
-                <key>loop_out</key>
+                <key>PioneerDDJ400.loopOut</key>
                 <status>0x90</status>
                 <midino>0x11</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>LOOP OUT (DECK2) - press - Set loop out</description>
                 <group>[Channel2]</group>
-                <key>loop_out</key>
+                <key>PioneerDDJ400.loopOut</key>
                 <status>0x91</status>
                 <midino>0x11</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 
             <control>
                 <description>RELOOP/EXIT (DECK1) - press - (loop off) Reloop, (loop on) Loop exit</description>
                 <group>[Channel1]</group>
-                <key>reloop_toggle</key>
+                <key>PioneerDDJ400.reloopToggle</key>
                 <status>0x90</status>
                 <midino>0x4D</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>RELOOP/EXIT (DECK2) - press - (loop off) Reloop, (loop on) Loop exit</description>
                 <group>[Channel2]</group>
-                <key>reloop_toggle</key>
+                <key>PioneerDDJ400.reloopToggle</key>
                 <status>0x91</status>
                 <midino>0x4D</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 

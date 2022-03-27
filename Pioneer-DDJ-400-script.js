@@ -147,6 +147,10 @@ PioneerDDJ400.deckNumberFromGroup = function(group) {
   return parseInt(script.channelRegEx.exec(PioneerDDJ400.decks[group])[1]);
 };
 
+PioneerDDJ400.channelIndex = function(group) {
+  return parseInt(script.channelRegEx.exec(group)[1]) - 1;
+};
+
 // TODO: consider using BEAT SYNC + Shift
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
   if (value === 127) {
@@ -214,8 +218,8 @@ PioneerDDJ400.tempoRanges = [0.06, 0.10, 0.16, 0.25];
 PioneerDDJ400.shiftButtonDown = [false, false];
 
 // Jog wheel loop adjust
-PioneerDDJ400.loopAdjustIn = [false, false];
-PioneerDDJ400.loopAdjustOut = [false, false];
+PioneerDDJ400.loopAdjustIn = [false, false, false, false];
+PioneerDDJ400.loopAdjustOut = [false, false, false, false];
 PioneerDDJ400.loopAdjustMultiply = 50;
 
 // Beatjump pad (beatjump_size values)
@@ -454,6 +458,7 @@ PioneerDDJ400.cuePressed = function(_channel, _control, value, _status, group) {
 };
 
 PioneerDDJ400.startPlay = function(_channel, _control, value, _status, group) {
+  // TODO: don't mutate, set new var.
   group = PioneerDDJ400.decks[group]
   if (value) {
     engine.setValue(group, 'start_play', value)
@@ -461,23 +466,50 @@ PioneerDDJ400.startPlay = function(_channel, _control, value, _status, group) {
 }
 
 //
+// Loop IN/OUT
+//
+
+PioneerDDJ400.loopIn = function(_channel, _control, value, _status, group) {
+  var deck = PioneerDDJ400.decks[group];
+  engine.setValue(deck, 'loop_in', value);
+};
+
+PioneerDDJ400.loopOut = function(_channel, _control, value, _status, group) {
+  var deck = PioneerDDJ400.decks[group];
+  engine.setValue(deck, 'loop_out', value);
+};
+
+PioneerDDJ400.reloopToggle = function(_channel, _control, value, _status, group) {
+  var deck = PioneerDDJ400.decks[group];
+  if (value) {
+    engine.setValue(deck, 'reloop_toggle', value);
+  };
+}
+
+//
 // Loop IN/OUT ADJUST
 //
 
-PioneerDDJ400.toggleLoopAdjustIn = function(channel, _control, value, _status, group) {
-    if (value === 0 || engine.getValue(group, "loop_enabled" === 0)) {
+PioneerDDJ400.toggleLoopAdjustIn = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group];
+    var index = PioneerDDJ400.channelIndex(deck);
+
+    if (value === 0 || engine.getValue(deck, "loop_enabled" === 0)) {
         return;
     }
-    PioneerDDJ400.loopAdjustIn[channel] = !PioneerDDJ400.loopAdjustIn[channel];
-    PioneerDDJ400.loopAdjustOut[channel] = false;
+    PioneerDDJ400.loopAdjustIn[index] = !PioneerDDJ400.loopAdjustIn[index];
+    PioneerDDJ400.loopAdjustOut[index] = false;
 };
 
-PioneerDDJ400.toggleLoopAdjustOut = function(channel, _control, value, _status, group) {
+PioneerDDJ400.toggleLoopAdjustOut = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group];
+    var index = PioneerDDJ400.channelIndex(deck);
+
     if (value === 0 || engine.getValue(group, "loop_enabled" === 0)) {
         return;
     }
-    PioneerDDJ400.loopAdjustOut[channel] = !PioneerDDJ400.loopAdjustOut[channel];
-    PioneerDDJ400.loopAdjustIn[channel] = false;
+    PioneerDDJ400.loopAdjustOut[index] = !PioneerDDJ400.loopAdjustOut[index];
+    PioneerDDJ400.loopAdjustIn[index] = false;
 };
 
 // Two signals are sent here so that the light stays lit/unlit in its shift state too
@@ -494,15 +526,17 @@ PioneerDDJ400.setLoopButtonLights = function(status, value) {
 };
 
 PioneerDDJ400.startLoopLightsBlink = function(channel, control, status, group) {
+    var deck = PioneerDDJ400.decks[group];
+    var index = PioneerDDJ400.channelIndex(deck);
     var blink = 0x7F;
 
-    PioneerDDJ400.stopLoopLightsBlink(group, control, status);
+    PioneerDDJ400.stopLoopLightsBlink(deck, control, status);
 
-    PioneerDDJ400.timers[group][control] = engine.beginTimer(500, function() {
+    PioneerDDJ400.timers[deck][control] = engine.beginTimer(500, function() {
         blink = 0x7F - blink;
 
         // When adjusting the loop out position, turn the loop in light off
-        if (PioneerDDJ400.loopAdjustOut[channel]) {
+        if (PioneerDDJ400.loopAdjustOut[index]) {
             midi.sendShortMsg(status, 0x10, 0x00);
             midi.sendShortMsg(status, 0x4C, 0x00);
         } else {
@@ -511,7 +545,7 @@ PioneerDDJ400.startLoopLightsBlink = function(channel, control, status, group) {
         }
 
         // When adjusting the loop in position, turn the loop out light off
-        if (PioneerDDJ400.loopAdjustIn[channel]) {
+        if (PioneerDDJ400.loopAdjustIn[index]) {
             midi.sendShortMsg(status, 0x11, 0x00);
             midi.sendShortMsg(status, 0x4E, 0x00);
         } else {
@@ -607,22 +641,23 @@ PioneerDDJ400.cycleTempoRange = function(_channel, _control, value, _status, gro
 //
 
 PioneerDDJ400.jogTurn = function(channel, _control, value, _status, group) {
-    var deckNum = PioneerDDJ400.deckNumberFromGroup(group);
-    group = PioneerDDJ400.decks[group]
+    var deck = PioneerDDJ400.decks[group]
+    var deckNum = parseInt(script.channelRegEx.exec(deck)[1])
     // wheel center at 64; <64 rew >64 fwd
     var newVal = value - 64;
 
     // loop_in / out adjust
-    var loopEnabled = engine.getValue(group, "loop_enabled");
+    var loopEnabled = engine.getValue(deck, "loop_enabled");
     if (loopEnabled > 0) {
-        if (PioneerDDJ400.loopAdjustIn[channel]) {
-            newVal = newVal * PioneerDDJ400.loopAdjustMultiply + engine.getValue(group, "loop_start_position");
-            engine.setValue(group, "loop_start_position", newVal);
+        var index = deckNum - 1
+        if (PioneerDDJ400.loopAdjustIn[index]) {
+            newVal = newVal * PioneerDDJ400.loopAdjustMultiply + engine.getValue(deck, "loop_start_position");
+            engine.setValue(deck, "loop_start_position", newVal);
             return;
         }
-        if (PioneerDDJ400.loopAdjustOut[channel]) {
-            newVal = newVal * PioneerDDJ400.loopAdjustMultiply + engine.getValue(group, "loop_end_position");
-            engine.setValue(group, "loop_end_position", newVal);
+        if (PioneerDDJ400.loopAdjustOut[index]) {
+            newVal = newVal * PioneerDDJ400.loopAdjustMultiply + engine.getValue(deck, "loop_end_position");
+            engine.setValue(deck, "loop_end_position", newVal);
             return;
         }
     }
@@ -630,7 +665,7 @@ PioneerDDJ400.jogTurn = function(channel, _control, value, _status, group) {
     if (engine.isScratching(deckNum)) {
         engine.scratchTick(deckNum, newVal);
     } else { // fallback
-        engine.setValue(group, "jog", newVal * this.bendScale);
+        engine.setValue(deck, "jog", newVal * this.bendScale);
     }
 };
 
