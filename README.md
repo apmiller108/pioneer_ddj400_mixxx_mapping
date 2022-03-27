@@ -3,10 +3,11 @@
 
 ## TODOs
 
-- [ ] Use BEAT SYNC + Shift to toggle decks
-- [ ] Revent to original RELOOP/EXIT + Shift in XML
+- [x] Use BEAT SYNC + Shift to toggle decks
+- [x] Revent to original RELOOP/EXIT + Shift in XML
 - [ ] Init Cue lights when toggling decks
 - [ ] Init Play lights when toggling decks
+- [ ] Script track loading for decks 3 and 4
 - [ ] Configure BEAT LOOP pads
 - [ ] Configure BEAT JUMP pads
 - [ ] See if anything needs to be done with SAMPLER pads

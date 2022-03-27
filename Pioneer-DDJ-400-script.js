@@ -1,4 +1,14 @@
+// This is a 4-deck controller mapping for the Pioneer DDJ-400 to work with
+// Mixxx DJ software. It is based on the 2-deck controller mapping:
+// https://github.com/mixxxdj/mixxx/blob/main/res/controllers/Pioneer-DDJ-400-script.js.
+// See notes for original 2-deck mapping below.
+//
+// Authors: apmiller108
+//
+// ORIGINAL NOTES FOR 2-DECK CONTROLLER MAPPING
+//
 // Pioneer-DDJ-400-script.js
+//
 // ****************************************************************************
 // * Mixxx mapping script file for the Pioneer DDJ-400.
 // * Authors: Warker, nschloe, dj3730, jusko
@@ -75,9 +85,9 @@ PioneerDDJ400.lights = {
             status: 0x90,
             data1: 0x48,
         },
-        deckToggle: { // RELOOP/EXIT
+        beatSync: {
           status: 0x90,
-          midinos: [0x4D, 0x50]
+          midinos: [0x58, 0x60]
         },
         hotcuePad: function(padNum) {
           var status = PioneerDDJ400.shiftButtonDown[0] ? 0x98 : 0x97;
@@ -106,9 +116,9 @@ PioneerDDJ400.lights = {
             status: 0x91,
             data1: 0x48,
         },
-        deckToggle: { // RELOOP/EXIT
+        beatSync: {
           status: 0x91,
-          midinos: [0x4D, 0x50]
+          midinos: [0x58, 0x60]
         },
         hotcuePad: function(padNum) {
           var status = PioneerDDJ400.shiftButtonDown[1] ? 0x9A : 0x99;
@@ -118,7 +128,7 @@ PioneerDDJ400.lights = {
     }
 };
 
-// Copy Channel lights to their respective toggle channel
+// Copy Channel lights to their respective toggle channels
 PioneerDDJ400.lights['[Channel3]'] = PioneerDDJ400.lights['[Channel1]']
 PioneerDDJ400.lights['[Channel4]'] = PioneerDDJ400.lights['[Channel2]']
 
@@ -170,11 +180,12 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
 };
 
 PioneerDDJ400.initDeck = function(group) {
-  var deckToggleLight = PioneerDDJ400.lights[group].deckToggle
+  var deckToggleLight = PioneerDDJ400.lights[group].beatSync
   var deckNumber = group.match(script.channelRegEx)[1]
 
-  // RELOOP/EXIT is lit for deck 1 when deck 3 is active and for deck 2 when
+  // BEAT SYNC is lit for deck 1 when deck 3 is active and for deck 2 when
   // deck 4 is active.
+
   deckToggleLight.midinos.forEach(function(midino) {
     midi.sendShortMsg(
       deckToggleLight.status,
@@ -257,13 +268,17 @@ PioneerDDJ400.toggleLight = function(midiIn, active) {
 
 PioneerDDJ400.onTrackLoaded = function(value, group, control) {
   var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
-  PioneerDDJ400.trackLoadedLED(value, activeDeck, control);
-  PioneerDDJ400.initDeck(group);
+  if (activeDeck) {
+    PioneerDDJ400.trackLoadedLED(value, activeDeck, control);
+    PioneerDDJ400.initDeck(group);
+  }
 };
 
 PioneerDDJ400.onEject = function(_value, group, _control) {
   var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
-  PioneerDDJ400.initDeck(group);
+  if (activeDeck) {
+    PioneerDDJ400.initDeck(group);
+  };
 };
 
 PioneerDDJ400.onLoopEnabled = function(value, group, control) {
@@ -478,12 +493,23 @@ PioneerDDJ400.loopOut = function(_channel, _control, value, _status, group) {
   engine.setValue(deck, 'loop_out', value);
 };
 
+//
+// Reloop
+//
+
 PioneerDDJ400.reloopToggle = function(_channel, _control, value, _status, group) {
   var deck = PioneerDDJ400.decks[group];
   if (value) {
     engine.setValue(deck, 'reloop_toggle', value);
   };
 }
+
+PioneerDDJ400.reloopAndstop = function(_channel, _control, value, _status, group) {
+  var deck = PioneerDDJ400.decks[group];
+  if (value) {
+    engine.setValue(deck, 'reloop_andstop', value);
+  };
+};
 
 //
 // Loop IN/OUT ADJUST

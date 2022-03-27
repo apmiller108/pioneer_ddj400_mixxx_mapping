@@ -370,7 +370,8 @@
             <control>
                 <description>BEAT SYNC +SHIFT (DECK1) - press - change Tempo range</description>
                 <group>[Channel1]</group>
-                <key>PioneerDDJ400.cycleTempoRange</key>
+                <!-- <key>PioneerDDJ400.cycleTempoRange</key> -->
+                <key>PioneerDDJ400.toggleDeck</key>
                 <status>0x90</status>
                 <midino>0x60</midino>
                 <options>
@@ -401,7 +402,8 @@
             <control>
                 <description>BEAT SYNC +SHIFT (DECK2) - press - change Tempo range</description>
                 <group>[Channel2]</group>
-                <key>PioneerDDJ400.cycleTempoRange</key>
+                <!-- <key>PioneerDDJ400.cycleTempoRange</key> -->
+                <key>PioneerDDJ400.toggleDeck</key>
                 <status>0x91</status>
                 <midino>0x60</midino>
                 <options>
@@ -476,24 +478,21 @@
             <control>
                 <description>RELOOP/EXIT +SHIFT (DECK1) - press - Reloop and stop</description>
                 <group>[Channel1]</group>
-                <!-- <key>reloop_andstop</key> -->
-                <key>PioneerDDJ400.toggleDeck</key>
+                <key>PioneerDDJ400.reloopAndstop</key>
                 <status>0x90</status>
                 <midino>0x50</midino>
                 <options>
-                  <!-- <Normal/> -->
-                    <Script-Binding/>
+                  <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>RELOOP/EXIT +SHIFT (DECK2) - press - Reloop and stop</description>
                 <group>[Channel2]</group>
-                <!-- <key>reloop_andstop</key> -->
-                <key>PioneerDDJ400.toggleDeck</key>
+                <key>PioneerDDJ400.reloopAndstop</key>
                 <status>0x91</status>
                 <midino>0x50</midino>
                 <options>
-                    <Script-Binding/>
+                  <Script-Binding/>
                 </options>
             </control>
 
