@@ -151,7 +151,6 @@ PioneerDDJ400.channelIndex = function(group) {
   return parseInt(script.channelRegEx.exec(group)[1]) - 1;
 };
 
-// TODO: consider using BEAT SYNC + Shift
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
   if (value === 127) {
     var deckNumber = PioneerDDJ400.deckNumberFromGroup(group);
