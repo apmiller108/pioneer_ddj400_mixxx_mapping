@@ -7,9 +7,13 @@
 - [x] Revent to original RELOOP/EXIT + Shift in XML
 - [ ] Init Cue lights when toggling decks
 - [ ] Init Play lights when toggling decks
-- [ ] Script track loading for decks 3 and 4
+- [ ] Update track loading control for decks 3 and 4
 - [ ] Configure BEAT LOOP pads
 - [ ] Configure BEAT JUMP pads
+- [ ] Update headphone cue controls to operate on decks 3 and 4
+- [ ] Update fader controls to operate on decks 3 and 4
+- [ ] Update the EQ controls to operate on decks 3 and 4
+- [ ] Update trim controls to operate on decks 3 and 4
 - [ ] See if anything needs to be done with SAMPLER pads
 - [ ] Investigate pad buttons + shift mappings
 - [ ] Clean up XML
