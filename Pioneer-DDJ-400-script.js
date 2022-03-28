@@ -197,6 +197,7 @@ PioneerDDJ400.initDeck = function(group) {
     PioneerDDJ400.initHotcueLights(null, group);
     PioneerDDJ400.initLoopLights(group);
     PioneerDDJ400.initPlay(group);
+    PioneerDDJ400.initCueIndicator(group);
 };
 
 PioneerDDJ400.initHotcueLights = function(value, group, control) {
@@ -216,6 +217,12 @@ PioneerDDJ400.initPlay = function(group) {
     var control = "play";
     var isPlaying = engine.getValue(group, control);
     PioneerDDJ400.onPlay(isPlaying, group, control);
+};
+
+PioneerDDJ400.initCueIndicator = function(group) {
+    var control = "cue_indicator";
+    var active = engine.getValue(group, control);
+    PioneerDDJ400.onCueIndicator(active, group, control);
 };
 
 // Store timer IDs
@@ -298,6 +305,11 @@ PioneerDDJ400.onPlay = function(value, group, _control) {
     PioneerDDJ400.toggleLight(light, value);
 }
 
+PioneerDDJ400.onCueIndicator = function(value, group, _control) {
+    var light = PioneerDDJ400.lights[group].cue
+    PioneerDDJ400.toggleLight(light, value);
+};
+
 //
 // Init
 //
@@ -335,6 +347,7 @@ PioneerDDJ400.init = function() {
         engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
         engine.makeConnection(channel, "loop_enabled", PioneerDDJ400.onLoopEnabled);
         engine.makeConnection(channel, "play", PioneerDDJ400.onPlay)
+        engine.makeConnection(channel, "cue_indicator", PioneerDDJ400.onCueIndicator)
     });
 
     // play the "track loaded" animation on both decks at startup

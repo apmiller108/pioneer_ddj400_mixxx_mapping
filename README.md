@@ -5,9 +5,10 @@
 
 - [x] Use BEAT SYNC + Shift to toggle decks
 - [x] Revent to original RELOOP/EXIT + Shift in XML
-- [ ] Init Cue lights when toggling decks
+- [x] Init Cue lights when toggling decks
 - [x] Init Play lights when toggling decks
 - [ ] Update track loading control for decks 3 and 4
+- [ ] Implement CUE/LOOP CALL
 - [ ] Configure BEAT LOOP pads
 - [ ] Configure BEAT JUMP pads
 - [ ] Update headphone cue controls to operate on decks 3 and 4
@@ -16,6 +17,7 @@
 - [ ] Update trim controls to operate on decks 3 and 4
 - [ ] See if anything needs to be done with SAMPLER pads
 - [ ] Investigate pad buttons + shift mappings
+- [ ] Update shutdown to flip off the beat sync light
 - [ ] Clean up XML
 - [ ] Clean up JS
 - [ ] Update code comments as needed
