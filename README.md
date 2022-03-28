@@ -6,7 +6,7 @@
 - [x] Use BEAT SYNC + Shift to toggle decks
 - [x] Revent to original RELOOP/EXIT + Shift in XML
 - [ ] Init Cue lights when toggling decks
-- [ ] Init Play lights when toggling decks
+- [x] Init Play lights when toggling decks
 - [ ] Update track loading control for decks 3 and 4
 - [ ] Configure BEAT LOOP pads
 - [ ] Configure BEAT JUMP pads

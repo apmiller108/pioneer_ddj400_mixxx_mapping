@@ -86,13 +86,13 @@ PioneerDDJ400.lights = {
             data1: 0x48,
         },
         beatSync: {
-          status: 0x90,
-          midinos: [0x58, 0x60]
+            status: 0x90,
+            midinos: [0x58, 0x60]
         },
         hotcuePad: function(padNum) {
-          var status = PioneerDDJ400.shiftButtonDown[0] ? 0x98 : 0x97;
-          var data1 = 0x00 + (padNum - 1);
-          return { status: status, data1: data1 };
+            var status = PioneerDDJ400.shiftButtonDown[0] ? 0x98 : 0x97;
+            var data1 = 0x00 + (padNum - 1);
+            return { status: status, data1: data1 };
         }
     },
     '[Channel2]': {
@@ -117,13 +117,13 @@ PioneerDDJ400.lights = {
             data1: 0x48,
         },
         beatSync: {
-          status: 0x91,
-          midinos: [0x58, 0x60]
+            status: 0x91,
+            midinos: [0x58, 0x60]
         },
         hotcuePad: function(padNum) {
-          var status = PioneerDDJ400.shiftButtonDown[1] ? 0x9A : 0x99;
-          var data1 = 0x00 + (padNum - 1);
-          return { status: status, data1: data1 };
+            var status = PioneerDDJ400.shiftButtonDown[1] ? 0x9A : 0x99;
+            var data1 = 0x00 + (padNum - 1);
+            return { status: status, data1: data1 };
         }
     }
 };
@@ -136,79 +136,86 @@ PioneerDDJ400.lights['[Channel4]'] = PioneerDDJ400.lights['[Channel2]']
 // also control channel3 when toggled (See toggleDeck below). And deck 2 can
 // control channel4.
 PioneerDDJ400.decks = {
-  '[Channel1]': '[Channel1]',
-  '[Channel2]': '[Channel2]'
+    '[Channel1]': '[Channel1]',
+    '[Channel2]': '[Channel2]'
 };
 
 PioneerDDJ400.activeDeckForGroup = function(group) {
-  return _.find(_.keys(PioneerDDJ400.decks), function(key) {
-    return PioneerDDJ400.decks[key] === group;
-  });
+    return _.find(_.keys(PioneerDDJ400.decks), function(key) {
+        return PioneerDDJ400.decks[key] === group;
+    });
 };
 
 PioneerDDJ400.channels = [
-  '[Channel1]',
-  '[Channel2]',
-  '[Channel3]',
-  '[Channel4]',
+    '[Channel1]',
+    '[Channel2]',
+    '[Channel3]',
+    '[Channel4]',
 ];
 
 PioneerDDJ400.deckNumberFromGroup = function(group) {
-  return parseInt(script.channelRegEx.exec(PioneerDDJ400.decks[group])[1]);
+    return parseInt(script.channelRegEx.exec(PioneerDDJ400.decks[group])[1]);
 };
 
 PioneerDDJ400.channelIndex = function(group) {
-  return parseInt(script.channelRegEx.exec(group)[1]) - 1;
+    return parseInt(script.channelRegEx.exec(group)[1]) - 1;
 };
 
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
-  if (value === 127) {
-    var deckNumber = PioneerDDJ400.deckNumberFromGroup(group);
-    var newDeckNumber;
+    if (value === 127) {
+        var deckNumber = PioneerDDJ400.deckNumberFromGroup(group);
+        var newDeckNumber;
 
-    if (deckNumber <= 2) {
-      newDeckNumber = deckNumber + 2
-    } else {
-      newDeckNumber = deckNumber - 2
+        if (deckNumber <= 2) {
+            newDeckNumber = deckNumber + 2
+        } else {
+            newDeckNumber = deckNumber - 2
+        };
+
+        var newChannel = '[Channel' + newDeckNumber + ']';
+        PioneerDDJ400.decks[group] = newChannel;
+
+        PioneerDDJ400.initDeck(newChannel);
     };
-
-    var newChannel = '[Channel' + newDeckNumber + ']';
-    PioneerDDJ400.decks[group] = newChannel;
-
-    PioneerDDJ400.initDeck(newChannel);
-  };
 };
 
 PioneerDDJ400.initDeck = function(group) {
-  var deckToggleLight = PioneerDDJ400.lights[group].beatSync
-  var deckNumber = group.match(script.channelRegEx)[1]
+    var deckToggleLight = PioneerDDJ400.lights[group].beatSync
+    var deckNumber = group.match(script.channelRegEx)[1]
 
-  // BEAT SYNC is lit for deck 1 when deck 3 is active and for deck 2 when
-  // deck 4 is active.
+    // BEAT SYNC is lit for deck 1 when deck 3 is active and for deck 2 when
+    // deck 4 is active.
 
-  deckToggleLight.midinos.forEach(function(midino) {
-    midi.sendShortMsg(
-      deckToggleLight.status,
-      midino,
-      deckNumber > 2 ? 0x7f : 0x00
-    );
-  });
+    deckToggleLight.midinos.forEach(function(midino) {
+        midi.sendShortMsg(
+            deckToggleLight.status,
+            midino,
+            deckNumber > 2 ? 0x7f : 0x00
+        );
+    });
 
-  PioneerDDJ400.initHotcueLights(null, group);
-  PioneerDDJ400.initLoopLights(group);
+    PioneerDDJ400.initHotcueLights(null, group);
+    PioneerDDJ400.initLoopLights(group);
+    PioneerDDJ400.initPlay(group);
 };
 
 PioneerDDJ400.initHotcueLights = function(value, group, control) {
-  for (i = 1; i <= 8; i++) {
-    var light = PioneerDDJ400.lights[group].hotcuePad(i);
-    PioneerDDJ400.toggleLight(light, engine.getValue(group, 'hotcue_' + i + '_enabled'));
-  };
+    for (i = 1; i <= 8; i++) {
+        var light = PioneerDDJ400.lights[group].hotcuePad(i);
+        PioneerDDJ400.toggleLight(light, engine.getValue(group, 'hotcue_' + i + '_enabled'));
+    };
 };
 
 PioneerDDJ400.initLoopLights= function(group) {
-  var control = 'loop_enabled';
-  var loopEnabled = engine.getValue(group, control);
-  PioneerDDJ400.onLoopEnabled(loopEnabled, group, control);
+    var control = 'loop_enabled';
+    var loopEnabled = engine.getValue(group, control);
+    PioneerDDJ400.onLoopEnabled(loopEnabled, group, control);
+};
+
+PioneerDDJ400.initPlay = function(group) {
+    var control = "play";
+    var isPlaying = engine.getValue(group, control);
+    PioneerDDJ400.onPlay(isPlaying, group, control);
 };
 
 // Store timer IDs
@@ -267,23 +274,28 @@ PioneerDDJ400.toggleLight = function(midiIn, active) {
 };
 
 PioneerDDJ400.onTrackLoaded = function(value, group, control) {
-  var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
-  if (activeDeck) {
-    PioneerDDJ400.trackLoadedLED(value, activeDeck, control);
-    PioneerDDJ400.initDeck(group);
-  }
+    var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
+    if (activeDeck) {
+        PioneerDDJ400.trackLoadedLED(value, activeDeck, control);
+        PioneerDDJ400.initDeck(group);
+    }
 };
 
 PioneerDDJ400.onEject = function(_value, group, _control) {
-  var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
-  if (activeDeck) {
-    PioneerDDJ400.initDeck(group);
-  };
+    var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
+    if (activeDeck) {
+        PioneerDDJ400.initDeck(group);
+    };
 };
 
 PioneerDDJ400.onLoopEnabled = function(value, group, control) {
-  var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
-  PioneerDDJ400.loopToggle(value, activeDeck, control);
+    var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
+    PioneerDDJ400.loopToggle(value, activeDeck, control);
+}
+
+PioneerDDJ400.onPlay = function(value, group, _control) {
+    var light = PioneerDDJ400.lights[group].playPause;
+    PioneerDDJ400.toggleLight(light, value);
 }
 
 //
@@ -307,7 +319,7 @@ PioneerDDJ400.init = function() {
     engine.softTakeover("[EffectRack1_EffectUnit1]", "mix", true);
 
     for (i = 1; i <= 3; i++) {
-      engine.makeConnection("[EffectRack1_EffectUnit1_Effect" + i +"]", "enabled", PioneerDDJ400.toggleFxLight);
+        engine.makeConnection("[EffectRack1_EffectUnit1_Effect" + i +"]", "enabled", PioneerDDJ400.toggleFxLight);
     }
     engine.makeConnection("[EffectRack1_EffectUnit1]", "focused_effect", PioneerDDJ400.toggleFxLight);
 
@@ -318,10 +330,11 @@ PioneerDDJ400.init = function() {
 
     // Loop over channels and setup connection callbacks, etc.
     PioneerDDJ400.channels.forEach(function(channel) {
-      engine.softTakeover(channel, "rate", true);
-      engine.makeConnection(channel, "track_loaded", PioneerDDJ400.onTrackLoaded);
-      engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
-      engine.makeConnection(channel, "loop_enabled", PioneerDDJ400.onLoopEnabled);
+        engine.softTakeover(channel, "rate", true);
+        engine.makeConnection(channel, "track_loaded", PioneerDDJ400.onTrackLoaded);
+        engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
+        engine.makeConnection(channel, "loop_enabled", PioneerDDJ400.onLoopEnabled);
+        engine.makeConnection(channel, "play", PioneerDDJ400.onPlay)
     });
 
     // play the "track loaded" animation on both decks at startup
@@ -336,8 +349,8 @@ PioneerDDJ400.init = function() {
 
     // Initialize hotcue pads
     for (var i = 1; i <= 8; i++) {
-      PioneerDDJ400['hotcue' + i + 'Activate'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_activate', i);
-      PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
+        PioneerDDJ400['hotcue' + i + 'Activate'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_activate', i);
+        PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
     }
 };
 
@@ -448,16 +461,16 @@ PioneerDDJ400.beatFxChannel = function(_channel, control, value, _status, group)
 //
 
 PioneerDDJ400.playPressed = function(_channel, _control, value, _status, group) {
-  group = PioneerDDJ400.decks[group]
-  if (value) {
-    engine.setValue(group, 'play', !(engine.getValue(group, 'play')))
-  };
+    var deck = PioneerDDJ400.decks[group];
+    if (value) {
+        engine.setValue(deck, 'play', !(engine.getValue(deck, 'play')))
+    };
 };
 
 PioneerDDJ400.reverseRoll = function(_channel, _control, value, _status, group) {
-  // Only active while play/pause +shift is held
-  group = PioneerDDJ400.decks[group]
-  engine.setValue(group, 'reverseroll', value)
+    // Only active while play/pause +shift is held
+    var deck = PioneerDDJ400.decks[group];
+    engine.setValue(deck, 'reverseroll', value)
 };
 
 //
@@ -465,18 +478,17 @@ PioneerDDJ400.reverseRoll = function(_channel, _control, value, _status, group) 
 //
 
 PioneerDDJ400.cuePressed = function(_channel, _control, value, _status, group) {
-  group = PioneerDDJ400.decks[group]
-  if (value) {
-    engine.setValue(group, 'cue_default', value)
-  };
+    var deck = PioneerDDJ400.decks[group];
+    if (value) {
+        engine.setValue(deck, 'cue_default', value)
+    };
 };
 
 PioneerDDJ400.startPlay = function(_channel, _control, value, _status, group) {
-  // TODO: don't mutate, set new var.
-  group = PioneerDDJ400.decks[group]
-  if (value) {
-    engine.setValue(group, 'start_play', value)
-  };
+    var deck = PioneerDDJ400.decks[group];
+    if (value) {
+        engine.setValue(deck, 'start_play', value)
+    };
 }
 
 //
@@ -484,13 +496,13 @@ PioneerDDJ400.startPlay = function(_channel, _control, value, _status, group) {
 //
 
 PioneerDDJ400.loopIn = function(_channel, _control, value, _status, group) {
-  var deck = PioneerDDJ400.decks[group];
-  engine.setValue(deck, 'loop_in', value);
+    var deck = PioneerDDJ400.decks[group];
+    engine.setValue(deck, 'loop_in', value);
 };
 
 PioneerDDJ400.loopOut = function(_channel, _control, value, _status, group) {
-  var deck = PioneerDDJ400.decks[group];
-  engine.setValue(deck, 'loop_out', value);
+    var deck = PioneerDDJ400.decks[group];
+    engine.setValue(deck, 'loop_out', value);
 };
 
 //
@@ -498,17 +510,17 @@ PioneerDDJ400.loopOut = function(_channel, _control, value, _status, group) {
 //
 
 PioneerDDJ400.reloopToggle = function(_channel, _control, value, _status, group) {
-  var deck = PioneerDDJ400.decks[group];
-  if (value) {
-    engine.setValue(deck, 'reloop_toggle', value);
-  };
+    var deck = PioneerDDJ400.decks[group];
+    if (value) {
+        engine.setValue(deck, 'reloop_toggle', value);
+    };
 }
 
 PioneerDDJ400.reloopAndstop = function(_channel, _control, value, _status, group) {
-  var deck = PioneerDDJ400.decks[group];
-  if (value) {
-    engine.setValue(deck, 'reloop_andstop', value);
-  };
+    var deck = PioneerDDJ400.decks[group];
+    if (value) {
+        engine.setValue(deck, 'reloop_andstop', value);
+    };
 };
 
 //
@@ -724,8 +736,9 @@ PioneerDDJ400.shiftPressed = function(channel, _control, value, _status, group) 
     group = PioneerDDJ400.decks[group]
     PioneerDDJ400.shiftButtonDown[channel] = value === 0x7F;
 
-    // Make sure active hotcue lights remain lit when shift is pressed.
+    // Make sure these lights remain lit when shift is pressed
     PioneerDDJ400.initHotcueLights(null, group);
+    PioneerDDJ400.onPlay(null, group);
 };
 
 //
@@ -757,12 +770,12 @@ PioneerDDJ400.tempoSliderLSB = function(channel, control, value, status, group) 
 //
 
 PioneerDDJ400.hotcuePadFunction = function(property, padNum) {
-  return function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.decks[group];
-    var light = PioneerDDJ400.lights[group].hotcuePad(padNum);
-    engine.setValue(deck, property, value);
-    PioneerDDJ400.toggleLight(light, engine.getValue(deck, 'hotcue_' + padNum + '_enabled'));
-  }
+    return function(_channel, _control, value, _status, group) {
+        var deck = PioneerDDJ400.decks[group];
+        var light = PioneerDDJ400.lights[group].hotcuePad(padNum);
+        engine.setValue(deck, property, value);
+        PioneerDDJ400.toggleLight(light, engine.getValue(deck, 'hotcue_' + padNum + '_enabled'));
+    }
 }
 
 //
