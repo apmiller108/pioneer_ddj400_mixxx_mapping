@@ -7,7 +7,7 @@
 - [x] Revent to original RELOOP/EXIT + Shift in XML
 - [x] Init Cue lights when toggling decks
 - [x] Init Play lights when toggling decks
-- [ ] Update track loading control for decks 3 and 4
+- [x] Update track loading control for decks 3 and 4
 - [ ] Implement CUE/LOOP CALL
 - [ ] Configure BEAT LOOP pads
 - [ ] Configure BEAT JUMP pads

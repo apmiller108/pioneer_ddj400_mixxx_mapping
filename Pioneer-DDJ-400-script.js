@@ -280,6 +280,10 @@ PioneerDDJ400.toggleLight = function(midiIn, active) {
     midi.sendShortMsg(midiIn.status, midiIn.data1, active ? 0x7F : 0);
 };
 
+//
+// Callbacks
+//
+
 PioneerDDJ400.onTrackLoaded = function(value, group, control) {
     var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
     if (activeDeck) {
@@ -366,6 +370,17 @@ PioneerDDJ400.init = function() {
         PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
     }
 };
+
+//
+// Load selected track
+//
+
+PioneerDDJ400.loadSelectedTrack = function(channel, control, value, status, group) {
+    var deck = PioneerDDJ400.decks[group];
+    if (value) {
+        engine.setValue(deck, 'LoadSelectedTrack', value);
+    }
+}
 
 //
 // Channel level lights
