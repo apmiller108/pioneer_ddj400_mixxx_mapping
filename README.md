@@ -8,9 +8,9 @@
 - [x] Init Cue lights when toggling decks
 - [x] Init Play lights when toggling decks
 - [x] Update track loading control for decks 3 and 4
-- [ ] Implement CUE/LOOP CALL
+- [x] Implement CUE/LOOP CALL
 - [ ] Configure BEAT LOOP pads
-- [ ] Configure BEAT JUMP pads
+- [ ] Configure BEAT JUMP pads (see also Beatjump output for pads 7&8)
 - [ ] Update headphone cue controls to operate on decks 3 and 4
 - [ ] Update fader controls to operate on decks 3 and 4
 - [ ] Update the EQ controls to operate on decks 3 and 4

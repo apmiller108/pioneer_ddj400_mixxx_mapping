@@ -651,14 +651,16 @@ PioneerDDJ400.loopToggle = function(value, group, control) {
 //
 
 PioneerDDJ400.cueLoopCallLeft = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group]
     if (value) {
-        engine.setValue(group, "loop_scale", 0.5);
+        engine.setValue(deck, "loop_scale", 0.5);
     }
 };
 
 PioneerDDJ400.cueLoopCallRight = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group]
     if (value) {
-        engine.setValue(group, "loop_scale", 2.0);
+        engine.setValue(deck, "loop_scale", 2.0);
     }
 };
 
@@ -670,26 +672,26 @@ PioneerDDJ400.cueLoopCallRight = function(_channel, _control, value, _status, gr
 //
 
 PioneerDDJ400.syncPressed = function(_channel, _control, value, _status, group) {
-    group = PioneerDDJ400.decks[group]
-    if (engine.getValue(group, "sync_enabled") && value > 0) {
-        engine.setValue(group, "sync_enabled", 0);
+    var deck = PioneerDDJ400.decks[group]
+    if (engine.getValue(deck, "sync_enabled") && value > 0) {
+        engine.setValue(deck, "sync_enabled", 0);
     } else {
-        engine.setValue(group, "beatsync", value);
+        engine.setValue(deck, "beatsync", value);
     }
 };
 
 PioneerDDJ400.syncLongPressed = function(_channel, _control, value, _status, group) {
-    group = PioneerDDJ400.decks[group]
+    var deck = PioneerDDJ400.decks[group]
     if (value) {
-        engine.setValue(group, "sync_enabled", 1);
+        engine.setValue(deck, "sync_enabled", 1);
     }
 };
 
 PioneerDDJ400.cycleTempoRange = function(_channel, _control, value, _status, group) {
-    group = PioneerDDJ400.decks[group]
+    var deck = PioneerDDJ400.decks[group]
     if (value === 0) return; // ignore release
 
-    var currRange = engine.getValue(group, "rateRange");
+    var currRange = engine.getValue(deck, "rateRange");
     var idx = 0;
 
     for (var i = 0; i < this.tempoRanges.length; i++) {
@@ -698,7 +700,7 @@ PioneerDDJ400.cycleTempoRange = function(_channel, _control, value, _status, gro
             break;
         }
     }
-    engine.setValue(group, "rateRange", this.tempoRanges[idx]);
+    engine.setValue(deck, "rateRange", this.tempoRanges[idx]);
 };
 
 //
@@ -917,14 +919,16 @@ PioneerDDJ400.toggleQuantize = function(_channel, _control, value, _status, grou
 };
 
 PioneerDDJ400.quickJumpForward = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group]
     if (value) {
-        engine.setValue(group, "beatjump", PioneerDDJ400.quickJumpSize);
+        engine.setValue(deck, "beatjump", PioneerDDJ400.quickJumpSize);
     }
 };
 
 PioneerDDJ400.quickJumpBack = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group]
     if (value) {
-        engine.setValue(group, "beatjump", -PioneerDDJ400.quickJumpSize);
+        engine.setValue(deck, "beatjump", -PioneerDDJ400.quickJumpSize);
     }
 };
 
