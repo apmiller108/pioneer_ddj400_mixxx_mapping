@@ -93,6 +93,10 @@ PioneerDDJ400.lights = {
             var status = PioneerDDJ400.shiftButtonDown[0] ? 0x98 : 0x97;
             var data1 = 0x00 + (padNum - 1);
             return { status: status, data1: data1 };
+        },
+        beatLoopPad: function(padNum) {
+            var data1 = 0x60 + (padNum - 1);
+            return { status: 0x97, data1: data1 };
         }
     },
     '[Channel2]': {
@@ -124,6 +128,10 @@ PioneerDDJ400.lights = {
             var status = PioneerDDJ400.shiftButtonDown[1] ? 0x9A : 0x99;
             var data1 = 0x00 + (padNum - 1);
             return { status: status, data1: data1 };
+        },
+        beatLoopPad: function(padNum) {
+            var data1 = 0x60 + (padNum - 1);
+            return { status: 0x99, data1: data1 };
         }
     }
 };
@@ -364,10 +372,14 @@ PioneerDDJ400.init = function() {
     // query the controller for current control positions on startup
     midi.sendSysexMsg([0xF0, 0x00, 0x40, 0x05, 0x00, 0x00, 0x02, 0x06, 0x00, 0x03, 0x01, 0xf7], 12);
 
-    // Initialize hotcue pads
+    // Initialize hotcue and beatloop pads
     for (var i = 1; i <= 8; i++) {
         PioneerDDJ400['hotcue' + i + 'Activate'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_activate', i);
         PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
+
+        var loopLength = PioneerDDJ400.beatLoopPadLoopLengths[i - 1];
+        PioneerDDJ400['beatloop' + loopLength.replace('.', '') + 'Toggle']
+            = PioneerDDJ400.beatLoopPadFunction('beatloop_' + loopLength + '_toggle', i);
     }
 };
 
@@ -805,8 +817,26 @@ PioneerDDJ400.hotcuePadFunction = function(property, padNum) {
         var light = PioneerDDJ400.lights[group].hotcuePad(padNum);
         engine.setValue(deck, property, value);
         PioneerDDJ400.toggleLight(light, engine.getValue(deck, 'hotcue_' + padNum + '_enabled'));
-    }
-}
+    };
+};
+
+//
+// Beat loop pads
+//
+
+PioneerDDJ400.beatLoopPadLoopLengths = [
+    '0.25', '0.5', '1', '2', '4', '8', '16', '32'
+];
+
+PioneerDDJ400.beatLoopPadFunction = function(property, padNum) {
+    return function(_channel, _control, value, _status, group) {
+        var deck = PioneerDDJ400.decks[group];
+        var light = PioneerDDJ400.lights[deck].beatLoopPad(padNum);
+        var loopLength = PioneerDDJ400.beatLoopPadLoopLengths[padNum - 1];
+        engine.setValue(deck, property, value);
+        PioneerDDJ400.toggleLight(light, engine.getValue(deck, 'beatloop_' + loopLength + '_enabled'))
+    };
+};
 
 //
 // Beat Jump mode
@@ -817,31 +847,36 @@ PioneerDDJ400.hotcuePadFunction = function(property, padNum) {
 //
 
 PioneerDDJ400.beatjumpPadPressed = function(_channel, control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group]
     if (value === 0) {
         return;
     }
-    engine.setValue(group, "beatjump_size", Math.abs(PioneerDDJ400.beatjumpSizeForPad[control]));
-    engine.setValue(group, "beatjump", PioneerDDJ400.beatjumpSizeForPad[control]);
+    engine.setValue(deck, "beatjump_size", Math.abs(PioneerDDJ400.beatjumpSizeForPad[control]));
+    engine.setValue(deck, "beatjump", PioneerDDJ400.beatjumpSizeForPad[control]);
 };
 
 PioneerDDJ400.increaseBeatjumpSizes = function(_channel, control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group]
+
     if (value === 0 || PioneerDDJ400.beatjumpSizeForPad[0x21] * 16 > 16) {
         return;
     }
     Object.keys(PioneerDDJ400.beatjumpSizeForPad).forEach(function(pad) {
         PioneerDDJ400.beatjumpSizeForPad[pad] = PioneerDDJ400.beatjumpSizeForPad[pad] * 16;
     });
-    engine.setValue(group, "beatjump_size", PioneerDDJ400.beatjumpSizeForPad[0x21]);
+    engine.setValue(deck, "beatjump_size", PioneerDDJ400.beatjumpSizeForPad[0x21]);
 };
 
 PioneerDDJ400.decreaseBeatjumpSizes = function(_channel, control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group]
+
     if (value === 0 || PioneerDDJ400.beatjumpSizeForPad[0x21] / 16 < 1/16) {
         return;
     }
     Object.keys(PioneerDDJ400.beatjumpSizeForPad).forEach(function(pad) {
         PioneerDDJ400.beatjumpSizeForPad[pad] = PioneerDDJ400.beatjumpSizeForPad[pad] / 16;
     });
-    engine.setValue(group, "beatjump_size", PioneerDDJ400.beatjumpSizeForPad[0x21]);
+    engine.setValue(deck, "beatjump_size", PioneerDDJ400.beatjumpSizeForPad[0x21]);
 };
 
 //

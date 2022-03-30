@@ -1449,161 +1449,161 @@
             <control>
                 <description>PAD 1 (DECK1) BEAT LOOP MODE - press - 1/4 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_0.25_toggle</key>
+                <key>PioneerDDJ400.beatloop025Toggle</key>
                 <status>0x97</status>
                 <midino>0x60</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 1 (DECK2) BEAT LOOP MODE - press - 1/4 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_0.25_toggle</key>
+                <key>PioneerDDJ400.beatloop025Toggle</key>
                 <status>0x99</status>
                 <midino>0x60</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 2 (DECK1) BEAT LOOP MODE - press - 1/2 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_0.5_toggle</key>
+                <key>PioneerDDJ400.beatloop05Toggle</key>
                 <status>0x97</status>
                 <midino>0x61</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 2 (DECK2) BEAT LOOP MODE - press - 1/2 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_0.5_toggle</key>
+                <key>PioneerDDJ400.beatloop05Toggle</key>
                 <status>0x99</status>
                 <midino>0x61</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 3 (DECK1) BEAT LOOP MODE - press - 1/1 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_1_toggle</key>
+                <key>PioneerDDJ400.beatloop1Toggle</key>
                 <status>0x97</status>
                 <midino>0x62</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 3 (DECK2) BEAT LOOP MODE - press - 1/1 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_1_toggle</key>
+                <key>PioneerDDJ400.beatloop1Toggle</key>
                 <status>0x99</status>
                 <midino>0x62</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 4 (DECK1) BEAT LOOP MODE - press - 2 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_2_toggle</key>
+                <key>PioneerDDJ400.beatloop2Toggle</key>
                 <status>0x97</status>
                 <midino>0x63</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 4 (DECK2) BEAT LOOP MODE - press - 2 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_2_toggle</key>
+                <key>PioneerDDJ400.beatloop2Toggle</key>
                 <status>0x99</status>
                 <midino>0x63</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 5 (DECK1) BEAT LOOP MODE - press - 4 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_4_toggle</key>
+                <key>PioneerDDJ400.beatloop4Toggle</key>
                 <status>0x97</status>
                 <midino>0x64</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 5 (DECK2) BEAT LOOP MODE - press - 4 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_4_toggle</key>
+                <key>PioneerDDJ400.beatloop4Toggle</key>
                 <status>0x99</status>
                 <midino>0x64</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 6 (DECK1) BEAT LOOP MODE - press - 8 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_8_toggle</key>
+                <key>PioneerDDJ400.beatloop8Toggle</key>
                 <status>0x97</status>
                 <midino>0x65</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 6 (DECK2) BEAT LOOP MODE - press - 8 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_8_toggle</key>
+                <key>PioneerDDJ400.beatloop8Toggle</key>
                 <status>0x99</status>
                 <midino>0x65</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 7 (DECK1) BEAT LOOP MODE - press - 16 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_16_toggle</key>
+                <key>PioneerDDJ400.beatloop16Toggle</key>
                 <status>0x97</status>
                 <midino>0x66</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 7 (DECK2) BEAT LOOP MODE - press - 16 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_16_toggle</key>
+                <key>PioneerDDJ400.beatloop16Toggle</key>
                 <status>0x99</status>
                 <midino>0x66</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 8 (DECK1) BEAT LOOP MODE - press - 32 Beatloop</description>
                 <group>[Channel1]</group>
-                <key>beatloop_32_toggle</key>
+                <key>PioneerDDJ400.beatloop32Toggle</key>
                 <status>0x97</status>
                 <midino>0x67</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>PAD 8 (DECK2) BEAT LOOP MODE - press - 32 Beatloop</description>
                 <group>[Channel2]</group>
-                <key>beatloop_32_toggle</key>
+                <key>PioneerDDJ400.beatloop32Toggle</key>
                 <status>0x99</status>
                 <midino>0x67</midino>
                 <options>
-                    <Normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <!-- BEAT LOOP MODE END -->
@@ -1771,7 +1771,7 @@
             </control>
 
             <control>
-                <description>PAD 7 (DECK1) +SHift BEAT JUMP MODE - press - decrease Beatjump by a factor of 16</description>
+                <description>PAD 7 (DECK1) +Shift BEAT JUMP MODE - press - decrease Beatjump by a factor of 16</description>
                 <group>[Channel1]</group>
                 <key>PioneerDDJ400.decreaseBeatjumpSizes</key>
                 <status>0x98</status>
@@ -1791,7 +1791,7 @@
                 </options>
             </control>
             <control>
-                <description>PAD 8 (DECK1) +SHift BEAT JUMP MODE - press - increase Beatjump by a factor of 16</description>
+                <description>PAD 8 (DECK1) +Shift BEAT JUMP MODE - press - increase Beatjump by a factor of 16</description>
                 <group>[Channel1]</group>
                 <key>PioneerDDJ400.increaseBeatjumpSizes</key>
                 <status>0x98</status>
@@ -2770,7 +2770,7 @@
                 <minimum>0.5</minimum>
             </output>
 
-            <!-- Beatjump (light pads 7&8 when shift is pressed) -->
+            <!-- Beatjump (light pads 7&8 when shift is pressed - used for changing beatjump multiplyer) -->
             <output>
                 <group>[Channel1]</group>
                 <key>track_loaded</key>
