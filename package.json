@@ -1,0 +1,11 @@
+{
+  "name": "pioneer-ddj400-4-deck-mapping-for-mixxx",
+  "version": "0.1",
+  "description": "A 4 deck mapping for the Pioneer DDJ400 for Mixxx DJ software.",
+  "repository": "git@github.com:apmiller108/pioneer_ddj400_mixxx_mapping.git",
+  "author": "Alex Miller <apmiller108@yahoo.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.12.0"
+  }
+}

@@ -1,0 +1,18 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {
+    },
+    "globals": {
+        "midi": "readonly",
+        "engine": "readonly",
+        "_": "readonly",
+        "script": "readonly"
+    }
+}
