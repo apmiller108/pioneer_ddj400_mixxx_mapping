@@ -874,42 +874,42 @@
             <control>
                 <description>CUE Channel - press - toggle Headphone Cue</description>
                 <group>[Channel1]</group>
-                <key>pfl</key>
+                <key>PioneerDDJ400.pfl</key>
                 <status>0x90</status>
                 <midino>0x54</midino>
                 <options>
-                    <normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>CUE Channel - press - toggle Headphone Cue</description>
                 <group>[Channel2]</group>
-                <key>pfl</key>
+                <key>PioneerDDJ400.pfl</key>
                 <status>0x91</status>
                 <midino>0x54</midino>
                 <options>
-                    <normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 
             <control>
                 <description>CUE Channel +SHIFT - press - Adjust BPM to match tapped BPM</description>
                 <group>[Channel1]</group>
-                <key>bpm_tap</key>
+                <key>PioneerDDJ400.bpmTap</key>
                 <status>0x90</status>
                 <midino>0x68</midino>
                 <options>
-                    <normal/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>CUE Channel +SHIFT - press - Adjust BPM to match tapped BPM</description>
                 <group>[Channel2]</group>
-                <key>bpm_tap</key>
+                <key>PioneerDDJ400.bpmTap</key>
                 <status>0x91</status>
                 <midino>0x68</midino>
                 <options>
-                    <normal/>
+                    <Script-Binding/>
                 </options>
             </control>
 
