@@ -256,12 +256,12 @@ PioneerDDJ400.onLoopEnabled = function(value, group, control) {
     PioneerDDJ400.loopToggle(value, activeDeck, control);
 }
 
-PioneerDDJ400.onPlay = function(value, group, _control) {
+PioneerDDJ400.onPlay = function(value, group) {
     var light = PioneerDDJ400.lights[group].playPause;
-    PioneerDDJ400.toggleLight(light, value);
+    PioneerDDJ400.toggleLight(light, !!value);
 }
 
-PioneerDDJ400.onCueIndicator = function(value, group, _control) {
+PioneerDDJ400.onCueIndicator = function(value, group) {
     var light = PioneerDDJ400.lights[group].cue
     PioneerDDJ400.toggleLight(light, value);
 };
@@ -286,7 +286,7 @@ PioneerDDJ400.init = function() {
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect3]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1]", "mix", true);
 
-    for (i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 3; i++) {
         engine.makeConnection("[EffectRack1_EffectUnit1_Effect" + i +"]", "enabled", PioneerDDJ400.toggleFxLight);
     }
     engine.makeConnection("[EffectRack1_EffectUnit1]", "focused_effect", PioneerDDJ400.toggleFxLight);
@@ -339,13 +339,13 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
             newDeckNumber = deckNumber + 2
         } else {
             newDeckNumber = deckNumber - 2
-        };
+        }
 
         var newChannel = '[Channel' + newDeckNumber + ']';
         PioneerDDJ400.decks[group] = newChannel;
 
         PioneerDDJ400.initDeck(newChannel);
-    };
+    }
 };
 
 PioneerDDJ400.initDeck = function(group) {
@@ -369,7 +369,7 @@ PioneerDDJ400.initDeck = function(group) {
     PioneerDDJ400.initPfl(group);
 };
 
-PioneerDDJ400.initHotcueLights = function(value, group) {
+PioneerDDJ400.initHotcueLights = function(_value, group) {
     for (var i = 1; i <= 8; i++) {
         var light = PioneerDDJ400.lights[group].hotcuePad(i);
         PioneerDDJ400.toggleLight(light, engine.getValue(group, 'hotcue_' + i + '_enabled'));
@@ -385,6 +385,7 @@ PioneerDDJ400.initLoopLights= function(group) {
 PioneerDDJ400.initPlay = function(group) {
     var control = "play";
     var isPlaying = engine.getValue(group, control);
+    print(isPlaying);
     PioneerDDJ400.onPlay(isPlaying, group, control);
 };
 
@@ -545,11 +546,10 @@ PioneerDDJ400.playPressed = function(_channel, _control, value, _status, group) 
     var deck = PioneerDDJ400.decks[group];
     if (value) {
         engine.setValue(deck, 'play', !(engine.getValue(deck, 'play')))
-    };
+    }
 };
 
 PioneerDDJ400.reverseRoll = function(_channel, _control, value, _status, group) {
-    // Only active while play/pause +shift is held
     var deck = PioneerDDJ400.decks[group];
     engine.setValue(deck, 'reverseroll', value)
 };
@@ -821,7 +821,6 @@ PioneerDDJ400.shiftPressed = function(channel, _control, value, _status, group) 
 
     // Make sure these lights remain lit when shift is pressed
     PioneerDDJ400.initHotcueLights(null, deck);
-    PioneerDDJ400.onPlay(null, deck);
     PioneerDDJ400.initPfl(deck);
 };
 
