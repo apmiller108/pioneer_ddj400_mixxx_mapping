@@ -648,41 +648,41 @@
             <control>
                 <description>CHANNELFADER - slider</description>
                 <group>[Channel1]</group>
-                <key>volume</key>
+                <key>PioneerDDJ400.volumeFaderLsb</key>
                 <status>0xB0</status>
                 <midino>0x33</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                  <Script-Binding />
                 </options>
             </control>
             <control>
                 <description>CHANNELFADER - slider</description>
                 <group>[Channel1]</group>
-                <key>volume</key>
+                <key>PioneerDDJ400.volumeFaderMsb</key>
                 <status>0xB0</status>
                 <midino>0x13</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding />
                 </options>
             </control>
             <control>
                 <description>CHANNELFADER - slider</description>
                 <group>[Channel2]</group>
-                <key>volume</key>
+                <key>PioneerDDJ400.volumeFaderLsb</key>
                 <status>0xB1</status>
                 <midino>0x33</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding />
                 </options>
             </control>
             <control>
                 <description>CHANNELFADER - slider</description>
                 <group>[Channel2]</group>
-                <key>volume</key>
+                <key>PioneerDDJ400.volumeFaderMsb</key>
                 <status>0xB1</status>
                 <midino>0x13</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding />
                 </options>
             </control>
 

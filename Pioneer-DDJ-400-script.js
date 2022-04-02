@@ -454,6 +454,18 @@ PioneerDDJ400.bpmTap = function(_channel, _control, value, _status, group) {
     }
 };
 
+PioneerDDJ400.volumeFaderLsb = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group];
+    var msbValue = PioneerDDJ400.highResMSB[deck].volumeFader;
+    var normalizedValue = PioneerDDJ400.combineMsbLsb(msbValue, value)
+    engine.setParameter(deck, "volume", script.absoluteLin(normalizedValue, 0, 1, 0, 127));
+};
+
+PioneerDDJ400.volumeFaderMsb = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.decks[group];
+    PioneerDDJ400.highResMSB[deck].volumeFader = value;
+};
+
 //
 // Effects
 //
@@ -833,16 +845,16 @@ PioneerDDJ400.shiftPressed = function(channel, _control, value, _status, group) 
 //
 
 PioneerDDJ400.tempoSliderMSB = function(channel, control, value, status, group) {
-    group = PioneerDDJ400.decks[group]
-    PioneerDDJ400.highResMSB[group].tempoSlider = value;
+    var deck = PioneerDDJ400.decks[group]
+    PioneerDDJ400.highResMSB[deck].tempoSlider = value;
 };
 
 PioneerDDJ400.tempoSliderLSB = function(channel, control, value, status, group) {
-    group = PioneerDDJ400.decks[group]
-    var fullValue = (PioneerDDJ400.highResMSB[group].tempoSlider << 7) + value;
+    var deck = PioneerDDJ400.decks[group]
+    var fullValue = (PioneerDDJ400.highResMSB[deck].tempoSlider << 7) + value;
 
     engine.setValue(
-        group,
+        deck,
         "rate",
         1 - (fullValue / 0x2000)
     );
