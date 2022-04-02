@@ -748,126 +748,125 @@
                 </options>
             </control>
 
-
             <control>
                 <description>EQ HI - rotate</description>
                 <group>[EqualizerRack1_[Channel1]_Effect1]</group>
-                <key>parameter3</key>
+                <key>PioneerDDJ400.parameter3Lsb</key>
                 <status>0xB0</status>
                 <midino>0x27</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                  <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ MID - rotate</description>
                 <group>[EqualizerRack1_[Channel1]_Effect1]</group>
-                <key>parameter2</key>
+                <key>PioneerDDJ400.parameter2Lsb</key>
                 <status>0xB0</status>
                 <midino>0x2B</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ LOW - rotate</description>
                 <group>[EqualizerRack1_[Channel1]_Effect1]</group>
-                <key>parameter1</key>
+                <key>PioneerDDJ400.parameter1Lsb</key>
                 <status>0xB0</status>
                 <midino>0x2F</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ HI - rotate</description>
                 <group>[EqualizerRack1_[Channel1]_Effect1]</group>
-                <key>parameter3</key>
+                <key>PioneerDDJ400.parameter3Msb</key>
                 <status>0xB0</status>
                 <midino>0x07</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ MID - rotate</description>
                 <group>[EqualizerRack1_[Channel1]_Effect1]</group>
-                <key>parameter2</key>
+                <key>PioneerDDJ400.parameter2Msb</key>
                 <status>0xB0</status>
                 <midino>0x0B</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ LOW - rotate</description>
                 <group>[EqualizerRack1_[Channel1]_Effect1]</group>
-                <key>parameter1</key>
+                <key>PioneerDDJ400.parameter1Msb</key>
                 <status>0xB0</status>
                 <midino>0x0F</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
 
             <control>
                 <description>EQ HI - rotate</description>
                 <group>[EqualizerRack1_[Channel2]_Effect1]</group>
-                <key>parameter3</key>
+                <key>PioneerDDJ400.parameter3Lsb</key>
                 <status>0xB1</status>
                 <midino>0x27</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ MID - rotate</description>
                 <group>[EqualizerRack1_[Channel2]_Effect1]</group>
-                <key>parameter2</key>
+                <key>PioneerDDJ400.parameter2Lsb</key>
                 <status>0xB1</status>
                 <midino>0x2B</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ LOW - rotate</description>
                 <group>[EqualizerRack1_[Channel2]_Effect1]</group>
-                <key>parameter1</key>
+                <key>PioneerDDJ400.parameter1Lsb</key>
                 <status>0xB1</status>
                 <midino>0x2F</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ HI - rotate</description>
                 <group>[EqualizerRack1_[Channel2]_Effect1]</group>
-                <key>parameter3</key>
+                <key>PioneerDDJ400.parameter3Msb</key>
                 <status>0xB1</status>
                 <midino>0x07</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ MID - rotate</description>
                 <group>[EqualizerRack1_[Channel2]_Effect1]</group>
-                <key>parameter2</key>
+                <key>PioneerDDJ400.parameter2Msb</key>
                 <status>0xB1</status>
                 <midino>0x0B</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>EQ LOW - rotate</description>
                 <group>[EqualizerRack1_[Channel2]_Effect1]</group>
-                <key>parameter1</key>
+                <key>PioneerDDJ400.parameter1Msb</key>
                 <status>0xB1</status>
                 <midino>0x0F</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
 

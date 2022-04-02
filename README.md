@@ -13,10 +13,11 @@
 - [x] Configure BEAT JUMP pads (see also Beatjump output for pads 7&8)
 - [x] Update headphone cue controls to operate on decks 3 and 4
 - [x] Fix init play button light
-- [ ] Update fader controls to operate on decks 3 and 4
-- [ ] Consider how to set faders 3 and 4 on init
-- [ ] Update the EQ controls to operate on decks 3 and 4
+- [x] Update fader controls to operate on decks 3 and 4
+- [x] Consider how to set faders 3 and 4 on init
+- [x] Update the EQ controls to operate on decks 3 and 4
 - [ ] Update trim controls to operate on decks 3 and 4
+- [ ] Update filter controls to operate on decks 3 and 4
 - [ ] See if anything needs to be done with SAMPLER pads
 - [ ] Investigate pad buttons + shift mappings
 - [ ] Update shutdown to flip off the beat sync light

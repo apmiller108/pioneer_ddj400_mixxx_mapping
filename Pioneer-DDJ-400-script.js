@@ -148,6 +148,14 @@ PioneerDDJ400.lights = {
 PioneerDDJ400.lights['[Channel3]'] = PioneerDDJ400.lights['[Channel1]']
 PioneerDDJ400.lights['[Channel4]'] = PioneerDDJ400.lights['[Channel2]']
 
+// Just a list of channels to loop over as needed.
+PioneerDDJ400.channels = [
+    '[Channel1]',
+    '[Channel2]',
+    '[Channel3]',
+    '[Channel4]',
+];
+
 // This is to faciliate 4 deck control. For example, deck 1 (ie, channel1) can
 // also control channel3 when toggled (See toggleDeck below). And deck 2 can
 // control channel4.
@@ -156,25 +164,9 @@ PioneerDDJ400.decks = {
     '[Channel2]': '[Channel2]'
 };
 
-PioneerDDJ400.activeDeckForGroup = function(group) {
-    return _.find(_.keys(PioneerDDJ400.decks), function(key) {
-        return PioneerDDJ400.decks[key] === group;
-    });
-};
-
-PioneerDDJ400.channels = [
-    '[Channel1]',
-    '[Channel2]',
-    '[Channel3]',
-    '[Channel4]',
-];
-
-PioneerDDJ400.deckNumberFromGroup = function(group) {
-    return parseInt(script.channelRegEx.exec(PioneerDDJ400.decks[group])[1]);
-};
-
-PioneerDDJ400.channelIndex = function(group) {
-    return parseInt(script.channelRegEx.exec(group)[1]) - 1;
+PioneerDDJ400.effects = {
+    '[EqualizerRack1_[Channel1]_Effect1]': '[EqualizerRack1_[Channel1]_Effect1]',
+    '[EqualizerRack1_[Channel2]_Effect1]': '[EqualizerRack1_[Channel2]_Effect1]'
 };
 
 // Store timer IDs
@@ -212,21 +204,42 @@ PioneerDDJ400.beatjumpSizeForPad = {
 
 PioneerDDJ400.quickJumpSize = 32;
 
-// Used for tempo slider
+// Used for tempo slider, volume faders, and effects parameters
 PioneerDDJ400.highResMSB = {
     "[Channel1]": {},
-    "[Channel3]": {},
     "[Channel2]": {},
+    "[Channel3]": {},
     "[Channel4]": {},
+    "[EqualizerRack1_[Channel1]_Effect1]": {},
+    "[EqualizerRack1_[Channel2]_Effect1]": {},
+    "[EqualizerRack1_[Channel3]_Effect1]": {},
+    "[EqualizerRack1_[Channel4]_Effect1]": {}
 };
 
-PioneerDDJ400.trackLoadedLED = function(value, group, _control) {
-    midi.sendShortMsg(
-        0x9F,
-        group.match(script.channelRegEx)[1] - 1,
-        value > 0 ? 0x7F : 0x00
-    );
+//
+// Helper Functions
+//
+
+PioneerDDJ400.activeDeckForGroup = function(group) {
+    return _.find(_.keys(PioneerDDJ400.decks), function(key) {
+        return PioneerDDJ400.decks[key] === group;
+    });
 };
+
+PioneerDDJ400.deckNumberFromGroup = function(group) {
+    return parseInt(script.channelRegEx.exec(PioneerDDJ400.decks[group])[1]);
+};
+
+PioneerDDJ400.channelIndex = function(group) {
+    return parseInt(script.channelRegEx.exec(group)[1]) - 1;
+};
+
+// Based on https://github.com/mixxxdj/mixxx/blob/main/src/controllers/midi/midicontroller.cpp#L316-L336
+PioneerDDJ400.combineMsbLsb = function(msb, lsb) {
+    var combinedValue = (msb << 7) + lsb
+    return Math.min((combinedValue / 0x80), 127);
+}
+
 
 PioneerDDJ400.toggleLight = function(midiIn, active) {
     midi.sendShortMsg(midiIn.status, midiIn.data1, active ? 0x7F : 0);
@@ -244,7 +257,15 @@ PioneerDDJ400.onTrackLoaded = function(value, group, control) {
     }
 };
 
-PioneerDDJ400.onEject = function(_value, group, _control) {
+PioneerDDJ400.trackLoadedLED = function(value, group) {
+    midi.sendShortMsg(
+        0x9F,
+        group.match(script.channelRegEx)[1] - 1,
+        value > 0 ? 0x7F : 0x00
+    );
+};
+
+PioneerDDJ400.onEject = function(_value, group) {
     var activeDeck = PioneerDDJ400.activeDeckForGroup(group)
     if (activeDeck) {
         PioneerDDJ400.initDeck(group);
@@ -332,7 +353,7 @@ PioneerDDJ400.init = function() {
 //
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
     if (value === 127) {
-        var deckNumber = PioneerDDJ400.deckNumberFromGroup(group);
+        var deckNumber = PioneerDDJ400.deckNumberFromGroup(group); // A number in the range of 1..4
         var newDeckNumber;
 
         if (deckNumber <= 2) {
@@ -343,6 +364,11 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
 
         var newChannel = '[Channel' + newDeckNumber + ']';
         PioneerDDJ400.decks[group] = newChannel;
+
+        // Also toggle parameter effects to operate on new channel
+        var effectGroup = '[EqualizerRack1_' + group + '_Effect1]';
+        var newEffect = '[EqualizerRack1_' + newChannel + '_Effect1]';
+        PioneerDDJ400.effects[effectGroup] = newEffect;
 
         PioneerDDJ400.initDeck(newChannel);
     }
@@ -430,6 +456,44 @@ PioneerDDJ400.vuMeterUpdate = function(value, group) {
         break;
     }
 };
+
+//
+// EQ
+//
+
+PioneerDDJ400.parameter1Msb = function(_channel, _control, value, _status, group) {
+    var effect = PioneerDDJ400.effects[group]
+    PioneerDDJ400.highResMSB[effect].parameter1 = value;
+};
+
+PioneerDDJ400.parameter1Lsb = function(_channel, _control, value, _status, group) {
+    PioneerDDJ400.setParameterMsbLsb(group, 'parameter1', value);
+};
+
+PioneerDDJ400.parameter2Msb = function(_channel, _control, value, _status, group) {
+    var effect = PioneerDDJ400.effects[group]
+    PioneerDDJ400.highResMSB[effect].parameter2 = value;
+};
+
+PioneerDDJ400.parameter2Lsb = function(_channel, _control, value, _status, group) {
+    PioneerDDJ400.setParameterMsbLsb(group, 'parameter2', value);
+};
+
+PioneerDDJ400.parameter3Msb = function(_channel, _control, value, _status, group) {
+    var effect = PioneerDDJ400.effects[group]
+    PioneerDDJ400.highResMSB[effect].parameter3 = value;
+};
+
+PioneerDDJ400.parameter3Lsb = function(_channel, _control, value, _status, group) {
+    PioneerDDJ400.setParameterMsbLsb(group, 'parameter3', value);
+};
+
+PioneerDDJ400.setParameterMsbLsb = function(group, parameter, lsbValue) {
+    var effect = PioneerDDJ400.effects[group];
+    var msbValue = PioneerDDJ400.highResMSB[effect][parameter]
+    var combinedValue = PioneerDDJ400.combineMsbLsb(msbValue, lsbValue);
+    engine.setParameter(effect, parameter, script.absoluteLin(combinedValue, 0, 0.999, 0, 127));
+}
 
 //
 // PFL (pre-fader listen / Headphone cueing)
