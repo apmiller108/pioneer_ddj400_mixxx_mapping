@@ -17,18 +17,24 @@
 - [x] Consider how to set faders 3 and 4 on init
 - [x] Update the EQ controls to operate on decks 3 and 4
 - [x] Update trim controls to operate on decks 3 and 4
-- [ ] Update filter controls to operate on decks 3 and 4
+- [x] Update filter controls to operate on decks 3 and 4
 - [ ] Use softTakeover for EQ, trim and volume faders
-- [ ] See if anything needs to be done with SAMPLER pads
-- [ ] Investigate pad buttons + shift mappings
-- [ ] Update shutdown to flip off the beat sync light
+- [x] See if anything needs to be done with SAMPLER pads
+- [x] Investigate pad buttons + shift mappings
+- [ ] Update shutdown to flip off the beat sync light, loop pads, hot cue pads
 - [ ] Remove or remap toggle quantize (it's already bound to bpm tap)
 - [ ] Move LEVEL/DEPTH + SHIFT customization to a branch
-- [ ] Clean up XML
+- [ ] Clean up XML (delete commented out outputs)
 - [ ] Clean up JS
 - [ ] Update code comments as needed
 - [ ] Update README with instructions
 - [ ] Post in [forum](https://mixxx.discourse.group/t/pioneer-ddj-400/17476) for feedback
+- [ ] Post in [Controller mappings forum](https://mixxx.discourse.group/c/controller-mappings/10) for feedback
+
+## Notes
+
+- Secondary pad modes (keyboard, pad FX1, pad FX2, and key shift ) are still not
+  implemented with this. These would be activated by the pad mode button +SHIFT.
 
 ## Resources
 

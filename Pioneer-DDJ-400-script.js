@@ -204,7 +204,8 @@ PioneerDDJ400.beatjumpSizeForPad = {
 
 PioneerDDJ400.quickJumpSize = 32;
 
-// Used for tempo slider, volume faders, and effects parameters
+// Used to cache MSB values for tempo slider, volume faders, effects, and filter
+// parameters
 PioneerDDJ400.highResMSB = {
     "[Channel1]": {},
     "[Channel2]": {},
@@ -213,7 +214,11 @@ PioneerDDJ400.highResMSB = {
     "[EqualizerRack1_[Channel1]_Effect1]": {},
     "[EqualizerRack1_[Channel2]_Effect1]": {},
     "[EqualizerRack1_[Channel3]_Effect1]": {},
-    "[EqualizerRack1_[Channel4]_Effect1]": {}
+    "[EqualizerRack1_[Channel4]_Effect1]": {},
+    "[QuickEffectRack1_[Channel1]]": {},
+    "[QuickEffectRack1_[Channel2]]": {},
+    "[QuickEffectRack1_[Channel3]]": {},
+    "[QuickEffectRack1_[Channel4]]": {}
 };
 
 //
@@ -240,10 +245,14 @@ PioneerDDJ400.combineMsbLsb = function(msb, lsb) {
     return Math.min((combinedValue / 0x80), 127);
 };
 
+// For setting knob parameters using 14 bit lsb/msb
+PioneerDDJ400.setParameterMsbLsb = function(group, parameter, lsbValue) {
+    var msbValue = PioneerDDJ400.highResMSB[group][parameter];
+    var combinedValue = PioneerDDJ400.combineMsbLsb(msbValue, lsbValue);
+    engine.setParameter(group, parameter, script.absoluteLin(combinedValue, 0, 0.999, 0, 127));
+};
 
 PioneerDDJ400.toggleLight = function(midiIn, active) {
-    print(midiIn.status);
-    print(midiIn.data1);
     midi.sendShortMsg(midiIn.status, midiIn.data1, active ? 0x7F : 0);
 };
 
@@ -309,13 +318,14 @@ PioneerDDJ400.init = function() {
     engine.softTakeover("[EffectRack1_EffectUnit1_Effect3]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1]", "mix", true);
 
-    for (var i = 1; i <= 3; i++) {
+    var i;
+    for (i = 1; i <= 3; i++) {
         engine.makeConnection("[EffectRack1_EffectUnit1_Effect" + i +"]", "enabled", PioneerDDJ400.toggleFxLight);
     }
     engine.makeConnection("[EffectRack1_EffectUnit1]", "focused_effect", PioneerDDJ400.toggleFxLight);
 
     // Sampler
-    for (var i = 1; i <= 16; ++i) {
+    for (i = 1; i <= 16; ++i) {
         engine.makeConnection("[Sampler" + i + "]", "play", PioneerDDJ400.samplerPlayOutputCallbackFunction);
     }
 
@@ -340,7 +350,7 @@ PioneerDDJ400.init = function() {
     midi.sendSysexMsg([0xF0, 0x00, 0x40, 0x05, 0x00, 0x00, 0x02, 0x06, 0x00, 0x03, 0x01, 0xf7], 12);
 
     // Initialize hotcue and beatloop pads
-    for (var i = 1; i <= 8; i++) {
+    for (i = 1; i <= 8; i++) {
         PioneerDDJ400['hotcue' + i + 'Activate'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_activate', i);
         PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
 
@@ -367,10 +377,15 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
         var newChannel = '[Channel' + newDeckNumber + ']';
         PioneerDDJ400.groups[group] = newChannel;
 
-        // Also toggle parameter effects to operate on new channel
+        // Toggle parameter effects to operate on new channel
         var effectGroup = '[EqualizerRack1_' + group + '_Effect1]';
         var newEffectGroup = '[EqualizerRack1_' + newChannel + '_Effect1]';
         PioneerDDJ400.groups[effectGroup] = newEffectGroup;
+
+        // Toggle quick effect (filter) to operatate on new channel
+        var quickFxGroup = '[QuickEffectRack1_' + group + ']';
+        var newQuickFxGroup = '[QuickEffectRack1_' + newChannel + ']';
+        PioneerDDJ400.groups[quickFxGroup] = newQuickFxGroup;
 
         PioneerDDJ400.initDeck(newChannel);
     }
@@ -486,43 +501,47 @@ PioneerDDJ400.pregainLsb = function(_channel, _control, value, _status, group) {
 //
 
 PioneerDDJ400.parameter1Msb = function(_channel, _control, value, _status, group) {
-    var effect = PioneerDDJ400.groups[group];
-    PioneerDDJ400.highResMSB[effect].parameter1 = value;
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.highResMSB[fxGroup].parameter1 = value;
 };
 
 PioneerDDJ400.parameter1Lsb = function(_channel, _control, value, _status, group) {
-    var effect = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(effect, 'parameter1', value);
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'parameter1', value);
 };
 
 PioneerDDJ400.parameter2Msb = function(_channel, _control, value, _status, group) {
-    var effect = PioneerDDJ400.groups[group];
-    PioneerDDJ400.highResMSB[effect].parameter2 = value;
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.highResMSB[fxGroup].parameter2 = value;
 };
 
 PioneerDDJ400.parameter2Lsb = function(_channel, _control, value, _status, group) {
-    var effect = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(effect, 'parameter2', value);
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'parameter2', value);
 };
 
 PioneerDDJ400.parameter3Msb = function(_channel, _control, value, _status, group) {
-    var effect = PioneerDDJ400.groups[group];
-    PioneerDDJ400.highResMSB[effect].parameter3 = value;
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.highResMSB[fxGroup].parameter3 = value;
 };
 
 PioneerDDJ400.parameter3Lsb = function(_channel, _control, value, _status, group) {
-    var effect = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(effect, 'parameter3', value);
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'parameter3', value);
 };
 
 //
 // Filter
 //
 
-PioneerDDJ400.setParameterMsbLsb = function(group, parameter, lsbValue) {
-    var msbValue = PioneerDDJ400.highResMSB[group][parameter];
-    var combinedValue = PioneerDDJ400.combineMsbLsb(msbValue, lsbValue);
-    engine.setParameter(group, parameter, script.absoluteLin(combinedValue, 0, 0.999, 0, 127));
+PioneerDDJ400.super1Msb = function(_channel, _control, value, _status, group) {
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.highResMSB[fxGroup].super1 = value;
+};
+
+PioneerDDJ400.super1Lsb = function(_channel, _control, value, _status, group) {
+    var fxGroup = PioneerDDJ400.groups[group];
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'super1', value);
 };
 
 //
@@ -1028,7 +1047,10 @@ PioneerDDJ400.decreaseBeatjumpSizes = function(_channel, control, value, _status
 // Sampler mode
 //
 
-PioneerDDJ400.samplerPlayOutputCallbackFunction = function(value, group, _control) {
+PioneerDDJ400.samplerPlayOutputCallbackFunction = function(value, group) {
+    print('sCallback');
+    print(value);
+    print(group);
     if (value === 1) {
         var curPad = group.match(script.samplerRegEx)[1];
         PioneerDDJ400.startSamplerBlink(
