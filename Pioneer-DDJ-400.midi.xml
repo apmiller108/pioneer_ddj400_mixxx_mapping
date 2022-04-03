@@ -710,41 +710,41 @@
             <control>
                 <description>TRIM - rotate</description>
                 <group>[Channel1]</group>
-                <key>pregain</key>
+                <key>PioneerDDJ400.pregainLsb</key>
                 <status>0xB0</status>
                 <midino>0x24</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>TRIM - rotate</description>
                 <group>[Channel1]</group>
-                <key>pregain</key>
+                <key>PioneerDDJ400.pregainMsb</key>
                 <status>0xB0</status>
                 <midino>0x04</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>TRIM - rotate</description>
                 <group>[Channel2]</group>
-                <key>pregain</key>
+                <key>PioneerDDJ400.pregainLsb</key>
                 <status>0xB1</status>
                 <midino>0x24</midino>
                 <options>
-                    <fourteen-bit-lsb/>
+                    <Script-Binding/>
                 </options>
             </control>
             <control>
                 <description>TRIM - rotate</description>
                 <group>[Channel2]</group>
-                <key>pregain</key>
+                <key>PioneerDDJ400.pregainMsb</key>
                 <status>0xB1</status>
                 <midino>0x04</midino>
                 <options>
-                    <fourteen-bit-msb/>
+                    <Script-Binding/>
                 </options>
             </control>
 
