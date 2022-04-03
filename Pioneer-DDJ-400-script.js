@@ -64,7 +64,7 @@ PioneerDDJ400.lights = {
         status: 0x94,
         data1: 0x43,
     },
-    '[Channel1]': {
+    "[Channel1]": {
         vuMeter: {
             status: 0xB0,
             data1: 0x02,
@@ -103,7 +103,7 @@ PioneerDDJ400.lights = {
             return { status: 0x97, data1: data1 };
         }
     },
-    '[Channel2]': {
+    "[Channel2]": {
         vuMeter: {
             status: 0xB0,
             data1: 0x02,
@@ -145,15 +145,28 @@ PioneerDDJ400.lights = {
 };
 
 // Copy Channel lights to their respective toggle channels
-PioneerDDJ400.lights['[Channel3]'] = PioneerDDJ400.lights['[Channel1]'];
-PioneerDDJ400.lights['[Channel4]'] = PioneerDDJ400.lights['[Channel2]'];
+PioneerDDJ400.lights["[Channel3]"] = PioneerDDJ400.lights["[Channel1]"];
+PioneerDDJ400.lights["[Channel4]"] = PioneerDDJ400.lights["[Channel2]"];
 
-// Just a list of channels to loop over as needed.
 PioneerDDJ400.channels = [
-    '[Channel1]',
-    '[Channel2]',
-    '[Channel3]',
-    '[Channel4]',
+    "[Channel1]",
+    "[Channel2]",
+    "[Channel3]",
+    "[Channel4]",
+];
+
+PioneerDDJ400.equalizerRacks = [
+    "[EqualizerRack1_[Channel1]_Effect1]",
+    "[EqualizerRack1_[Channel2]_Effect1]",
+    "[EqualizerRack1_[Channel3]_Effect1]",
+    "[EqualizerRack1_[Channel4]_Effect1]",
+];
+
+PioneerDDJ400.quickEffectRacks = [
+    "[QuickEffectRack1_[Channel1]]",
+    "[QuickEffectRack1_[Channel2]]",
+    "[QuickEffectRack1_[Channel3]]",
+    "[QuickEffectRack1_[Channel4]]",
 ];
 
 // This is to faciliate 4 deck control. It maps the controller channel to the
@@ -161,12 +174,12 @@ PioneerDDJ400.channels = [
 // 1 (ie, [Channel1]) can also control [Channel3] when toggled (See toggleDeck
 // below). And controller deck 2 can control [Channel4].
 PioneerDDJ400.groups = {
-    '[Channel1]': '[Channel1]',
-    '[Channel2]': '[Channel2]',
-    '[EqualizerRack1_[Channel1]_Effect1]': '[EqualizerRack1_[Channel1]_Effect1]',
-    '[EqualizerRack1_[Channel2]_Effect1]': '[EqualizerRack1_[Channel2]_Effect1]',
-    '[QuickEffectRack1_[Channel1]]': '[QuickEffectRack1_[Channel1]]',
-    '[QuickEffectRack1_[Channel2]]': '[QuickEffectRack1_[Channel2]]',
+    "[Channel1]": PioneerDDJ400.channels[0],
+    "[Channel2]": PioneerDDJ400.channels[1],
+    "[EqualizerRack1_[Channel1]_Effect1]": PioneerDDJ400.equalizerRacks[0],
+    "[EqualizerRack1_[Channel2]_Effect1]": PioneerDDJ400.equalizerRacks[1],
+    "[QuickEffectRack1_[Channel1]]": PioneerDDJ400.quickEffectRacks[0],
+    "[QuickEffectRack1_[Channel2]]": PioneerDDJ400.quickEffectRacks[1]
 };
 
 // Store timer IDs
@@ -231,6 +244,17 @@ PioneerDDJ400.activeDeckForGroup = function(group) {
     });
 };
 
+PioneerDDJ400.siblingGroup = function(group) {
+    var groupNum = parseInt(/.+Channel(\d).+/.exec(group)[1]);
+    var siblingGroupNum;
+    if (groupNum <= 2) {
+        siblingGroupNum = groupNum + 2;
+    } else {
+        siblingGroupNum = groupNum - 2;
+    }
+    return group.replace("Channel" + groupNum, "Channel" + siblingGroupNum);
+};
+
 PioneerDDJ400.deckNumberFromGroup = function(group) {
     return parseInt(script.channelRegEx.exec(PioneerDDJ400.groups[group])[1]);
 };
@@ -246,10 +270,16 @@ PioneerDDJ400.combineMsbLsb = function(msb, lsb) {
 };
 
 // For setting knob parameters using 14 bit lsb/msb
-PioneerDDJ400.setParameterMsbLsb = function(group, parameter, lsbValue) {
-    var msbValue = PioneerDDJ400.highResMSB[group][parameter];
+PioneerDDJ400.setParameterMsbLsb = function(fxGroup, parameter, lsbValue) {
+    var msbValue = PioneerDDJ400.highResMSB[fxGroup][parameter];
     var combinedValue = PioneerDDJ400.combineMsbLsb(msbValue, lsbValue);
-    engine.setParameter(group, parameter, script.absoluteLin(combinedValue, 0, 0.999, 0, 127));
+    PioneerDDJ400.parameterSoftTakeoverIngoreNextValue(fxGroup, parameter);
+    engine.setParameter(fxGroup, parameter, script.absoluteLin(combinedValue, 0, 0.999, 0, 127));
+};
+
+PioneerDDJ400.parameterSoftTakeoverIngoreNextValue = function(group, parameter) {
+    var siblingGroup = PioneerDDJ400.siblingGroup(group);
+    engine.softTakeoverIgnoreNextValue(siblingGroup, parameter);
 };
 
 PioneerDDJ400.toggleLight = function(midiIn, active) {
@@ -307,8 +337,8 @@ PioneerDDJ400.init = function() {
     engine.makeConnection("[Channel1]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
     engine.makeConnection("[Channel2]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
 
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel1]'].vuMeter, false);
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel2]'].vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights["[Channel1]"].vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights["[Channel2]"].vuMeter, false);
 
     // EffectRack
     engine.setValue("[EffectRack1_EffectUnit1]", "show_focus", 1);
@@ -329,14 +359,26 @@ PioneerDDJ400.init = function() {
         engine.makeConnection("[Sampler" + i + "]", "play", PioneerDDJ400.samplerPlayOutputCallbackFunction);
     }
 
-    // Loop over channels and setup connection callbacks, etc.
+    // Loop over groups and setup connection callbacks and soft takeovers
     PioneerDDJ400.channels.forEach(function(channel) {
         engine.softTakeover(channel, "rate", true);
+        engine.softTakeover(channel, "pregain", true);
+        engine.softTakeover(channel, "volume", true);
         engine.makeConnection(channel, "track_loaded", PioneerDDJ400.onTrackLoaded);
         engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
         engine.makeConnection(channel, "loop_enabled", PioneerDDJ400.onLoopEnabled);
         engine.makeConnection(channel, "play", PioneerDDJ400.onPlay);
         engine.makeConnection(channel, "cue_indicator", PioneerDDJ400.onCueIndicator);
+    });
+
+    PioneerDDJ400.equalizerRacks.forEach(function(eqRack) {
+        engine.softTakeover(eqRack, "parameter1", true);
+        engine.softTakeover(eqRack, "parameter2", true);
+        engine.softTakeover(eqRack, "parameter3", true);
+    });
+
+    PioneerDDJ400.quickEffectRacks.forEach(function(qfxRack) {
+        engine.softTakeover(qfxRack, "super1", true);
     });
 
     // play the "track loaded" animation on both decks at startup
@@ -351,12 +393,12 @@ PioneerDDJ400.init = function() {
 
     // Initialize hotcue and beatloop pads
     for (i = 1; i <= 8; i++) {
-        PioneerDDJ400['hotcue' + i + 'Activate'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_activate', i);
-        PioneerDDJ400['hotcue' + i + 'Clear'] = PioneerDDJ400.hotcuePadFunction('hotcue_' + i + '_clear', i);
+        PioneerDDJ400["hotcue" + i + "Activate"] = PioneerDDJ400.hotcuePadFunction("hotcue_" + i + "_activate", i);
+        PioneerDDJ400["hotcue" + i + "Clear"] = PioneerDDJ400.hotcuePadFunction("hotcue_" + i + "_clear", i);
 
         var loopLength = PioneerDDJ400.beatLoopPadLoopLengths[i - 1];
-        PioneerDDJ400['beatloop' + loopLength.replace('.', '') + 'Toggle']
-            = PioneerDDJ400.beatLoopPadFunction('beatloop_' + loopLength + '_toggle', i);
+        PioneerDDJ400["beatloop" + loopLength.replace(".", "") + "Toggle"]
+            = PioneerDDJ400.beatLoopPadFunction("beatloop_" + loopLength + "_toggle", i);
     }
 };
 
@@ -365,26 +407,27 @@ PioneerDDJ400.init = function() {
 //
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
     if (value === 127) {
-        var deckNumber = PioneerDDJ400.deckNumberFromGroup(group); // A number in the range of 1..4
-        var newDeckNumber;
+        var groupNum = script.deckFromGroup(group); // A number in the range of 1..2
+        var currentGroupNum = PioneerDDJ400.deckNumberFromGroup(group); // A number in the range of 1..4
+        var newGroupNum; // A number in the range of 1..4
 
-        if (deckNumber <= 2) {
-            newDeckNumber = deckNumber + 2;
+        if (currentGroupNum <= 2) {
+            newGroupNum = currentGroupNum + 2;
         } else {
-            newDeckNumber = deckNumber - 2;
+            newGroupNum = currentGroupNum - 2;
         }
 
-        var newChannel = '[Channel' + newDeckNumber + ']';
+        var newChannel = "[Channel" + newGroupNum + "]";
         PioneerDDJ400.groups[group] = newChannel;
 
-        // Toggle parameter effects to operate on new channel
-        var effectGroup = '[EqualizerRack1_' + group + '_Effect1]';
-        var newEffectGroup = '[EqualizerRack1_' + newChannel + '_Effect1]';
-        PioneerDDJ400.groups[effectGroup] = newEffectGroup;
+        // Toggle EQ rack to operate on new channel
+        var eqGroup = PioneerDDJ400.equalizerRacks[groupNum - 1];
+        var newEqGroup = PioneerDDJ400.equalizerRacks[newGroupNum - 1];
+        PioneerDDJ400.groups[eqGroup] = newEqGroup;
 
         // Toggle quick effect (filter) to operatate on new channel
-        var quickFxGroup = '[QuickEffectRack1_' + group + ']';
-        var newQuickFxGroup = '[QuickEffectRack1_' + newChannel + ']';
+        var quickFxGroup = PioneerDDJ400.quickEffectRacks[groupNum - 1];
+        var newQuickFxGroup = PioneerDDJ400.quickEffectRacks[newGroupNum - 1];
         PioneerDDJ400.groups[quickFxGroup] = newQuickFxGroup;
 
         PioneerDDJ400.initDeck(newChannel);
@@ -416,20 +459,20 @@ PioneerDDJ400.initDeck = function(group) {
 PioneerDDJ400.initHotcueLights = function(_value, group) {
     for (var i = 1; i <= 8; i++) {
         var light = PioneerDDJ400.lights[group].hotcuePad(i);
-        PioneerDDJ400.toggleLight(light, engine.getValue(group, 'hotcue_' + i + '_enabled'));
+        PioneerDDJ400.toggleLight(light, engine.getValue(group, "hotcue_" + i + "_enabled"));
     }
 };
 
 PioneerDDJ400.initLoopPadLights = function(group) {
     PioneerDDJ400.beatLoopPadLoopLengths.forEach(function(length, index) {
         var light = PioneerDDJ400.lights[group].beatLoopPad(index + 1);
-        PioneerDDJ400.toggleLight(light, engine.getValue(group, 'beatloop_' + length + '_enabled'));
+        PioneerDDJ400.toggleLight(light, engine.getValue(group, "beatloop_" + length + "_enabled"));
     });
 };
 
 
 PioneerDDJ400.initLoopLights = function(group) {
-    var control = 'loop_enabled';
+    var control = "loop_enabled";
     var loopEnabled = engine.getValue(group, control);
     PioneerDDJ400.onLoopEnabled(loopEnabled, group, control);
 };
@@ -447,7 +490,7 @@ PioneerDDJ400.initCueIndicator = function(group) {
 };
 
 PioneerDDJ400.initPfl = function(group) {
-    var control = 'pfl';
+    var control = "pfl";
     var active = engine.getValue(group, control);
     var light = PioneerDDJ400.lights[group].pfl;
     PioneerDDJ400.toggleLight(light, active);
@@ -460,7 +503,7 @@ PioneerDDJ400.initPfl = function(group) {
 PioneerDDJ400.loadSelectedTrack = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'LoadSelectedTrack', value);
+        engine.setValue(deck, "LoadSelectedTrack", value);
     }
 };
 
@@ -493,7 +536,7 @@ PioneerDDJ400.pregainMsb = function(_channel, _control, value, _status, group) {
 
 PioneerDDJ400.pregainLsb = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(deck, 'pregain', value);
+    PioneerDDJ400.setParameterMsbLsb(deck, "pregain", value);
 };
 
 //
@@ -507,7 +550,7 @@ PioneerDDJ400.parameter1Msb = function(_channel, _control, value, _status, group
 
 PioneerDDJ400.parameter1Lsb = function(_channel, _control, value, _status, group) {
     var fxGroup = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'parameter1', value);
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, "parameter1", value);
 };
 
 PioneerDDJ400.parameter2Msb = function(_channel, _control, value, _status, group) {
@@ -517,7 +560,7 @@ PioneerDDJ400.parameter2Msb = function(_channel, _control, value, _status, group
 
 PioneerDDJ400.parameter2Lsb = function(_channel, _control, value, _status, group) {
     var fxGroup = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'parameter2', value);
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, "parameter2", value);
 };
 
 PioneerDDJ400.parameter3Msb = function(_channel, _control, value, _status, group) {
@@ -527,7 +570,7 @@ PioneerDDJ400.parameter3Msb = function(_channel, _control, value, _status, group
 
 PioneerDDJ400.parameter3Lsb = function(_channel, _control, value, _status, group) {
     var fxGroup = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'parameter3', value);
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, "parameter3", value);
 };
 
 //
@@ -541,7 +584,7 @@ PioneerDDJ400.super1Msb = function(_channel, _control, value, _status, group) {
 
 PioneerDDJ400.super1Lsb = function(_channel, _control, value, _status, group) {
     var fxGroup = PioneerDDJ400.groups[group];
-    PioneerDDJ400.setParameterMsbLsb(fxGroup, 'super1', value);
+    PioneerDDJ400.setParameterMsbLsb(fxGroup, "super1", value);
 };
 
 //
@@ -551,7 +594,7 @@ PioneerDDJ400.super1Lsb = function(_channel, _control, value, _status, group) {
 PioneerDDJ400.pfl = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'pfl', !engine.getValue(deck, 'pfl'));
+        engine.setValue(deck, "pfl", !engine.getValue(deck, "pfl"));
         PioneerDDJ400.initPfl(deck);
     }
 };
@@ -563,15 +606,8 @@ PioneerDDJ400.pfl = function(_channel, _control, value, _status, group) {
 PioneerDDJ400.bpmTap = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'bpm_tap', value);
+        engine.setValue(deck, "bpm_tap", value);
     }
-};
-
-PioneerDDJ400.volumeFaderLsb = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group];
-    var msbValue = PioneerDDJ400.highResMSB[deck].volumeFader;
-    var normalizedValue = PioneerDDJ400.combineMsbLsb(msbValue, value)
-    engine.setParameter(deck, "volume", script.absoluteLin(normalizedValue, 0, 1, 0, 127));
 };
 
 PioneerDDJ400.volumeFaderMsb = function(_channel, _control, value, _status, group) {
@@ -579,11 +615,19 @@ PioneerDDJ400.volumeFaderMsb = function(_channel, _control, value, _status, grou
     PioneerDDJ400.highResMSB[deck].volumeFader = value;
 };
 
+PioneerDDJ400.volumeFaderLsb = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.groups[group];
+    var msbValue = PioneerDDJ400.highResMSB[deck].volumeFader;
+    var normalizedValue = PioneerDDJ400.combineMsbLsb(msbValue, value);
+    PioneerDDJ400.parameterSoftTakeoverIngoreNextValue(deck, "volume");
+    engine.setParameter(deck, "volume", script.absoluteLin(normalizedValue, 0, 1, 0, 127));
+};
+
 //
 // Effects
 //
 
-PioneerDDJ400.toggleFxLight = function(_value, _group, _control) {
+PioneerDDJ400.toggleFxLight = function() {
     var enabled = engine.getValue(PioneerDDJ400.focusedFxGroup(), "enabled");
 
     PioneerDDJ400.toggleLight(PioneerDDJ400.lights.beatFx, enabled);
@@ -670,13 +714,13 @@ PioneerDDJ400.beatFxChannel = function(_channel, control, value, _status, group)
 PioneerDDJ400.playPressed = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'play', !(engine.getValue(deck, 'play')))
+        engine.setValue(deck, "play", !(engine.getValue(deck, "play")));
     }
 };
 
 PioneerDDJ400.reverseRoll = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
-    engine.setValue(deck, 'reverseroll', value)
+    engine.setValue(deck, "reverseroll", value);
 };
 
 //
@@ -686,16 +730,16 @@ PioneerDDJ400.reverseRoll = function(_channel, _control, value, _status, group) 
 PioneerDDJ400.cuePressed = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'cue_default', value)
-    };
+        engine.setValue(deck, "cue_default", value);
+    }
 };
 
 PioneerDDJ400.startPlay = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'start_play', value)
-    };
-}
+        engine.setValue(deck, "start_play", value);
+    }
+};
 
 //
 // Loop IN/OUT
@@ -703,12 +747,12 @@ PioneerDDJ400.startPlay = function(_channel, _control, value, _status, group) {
 
 PioneerDDJ400.loopIn = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
-    engine.setValue(deck, 'loop_in', value);
+    engine.setValue(deck, "loop_in", value);
 };
 
 PioneerDDJ400.loopOut = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
-    engine.setValue(deck, 'loop_out', value);
+    engine.setValue(deck, "loop_out", value);
 };
 
 //
@@ -718,15 +762,15 @@ PioneerDDJ400.loopOut = function(_channel, _control, value, _status, group) {
 PioneerDDJ400.reloopToggle = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'reloop_toggle', value);
-    };
-}
+        engine.setValue(deck, "reloop_toggle", value);
+    }
+};
 
 PioneerDDJ400.reloopAndstop = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
     if (value) {
-        engine.setValue(deck, 'reloop_andstop', value);
-    };
+        engine.setValue(deck, "reloop_andstop", value);
+    }
 };
 
 //
@@ -829,14 +873,14 @@ PioneerDDJ400.loopToggle = function(value, group, control) {
 //
 
 PioneerDDJ400.cueLoopCallLeft = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (value) {
         engine.setValue(deck, "loop_scale", 0.5);
     }
 };
 
 PioneerDDJ400.cueLoopCallRight = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (value) {
         engine.setValue(deck, "loop_scale", 2.0);
     }
@@ -850,7 +894,7 @@ PioneerDDJ400.cueLoopCallRight = function(_channel, _control, value, _status, gr
 //
 
 PioneerDDJ400.syncPressed = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (engine.getValue(deck, "sync_enabled") && value > 0) {
         engine.setValue(deck, "sync_enabled", 0);
     } else {
@@ -859,14 +903,14 @@ PioneerDDJ400.syncPressed = function(_channel, _control, value, _status, group) 
 };
 
 PioneerDDJ400.syncLongPressed = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (value) {
         engine.setValue(deck, "sync_enabled", 1);
     }
 };
 
 PioneerDDJ400.cycleTempoRange = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (value === 0) return; // ignore release
 
     var currRange = engine.getValue(deck, "rateRange");
@@ -886,15 +930,15 @@ PioneerDDJ400.cycleTempoRange = function(_channel, _control, value, _status, gro
 //
 
 PioneerDDJ400.jogTurn = function(channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
-    var deckNum = parseInt(script.channelRegEx.exec(deck)[1])
+    var deck = PioneerDDJ400.groups[group];
+    var deckNum = parseInt(script.channelRegEx.exec(deck)[1]);
     // wheel center at 64; <64 rew >64 fwd
     var newVal = value - 64;
 
     // loop_in / out adjust
     var loopEnabled = engine.getValue(deck, "loop_enabled");
     if (loopEnabled > 0) {
-        var index = deckNum - 1
+        var index = deckNum - 1;
         if (PioneerDDJ400.loopAdjustIn[index]) {
             newVal = newVal * PioneerDDJ400.loopAdjustMultiply + engine.getValue(deck, "loop_start_position");
             engine.setValue(deck, "loop_start_position", newVal);
@@ -916,7 +960,7 @@ PioneerDDJ400.jogTurn = function(channel, _control, value, _status, group) {
 
 
 PioneerDDJ400.jogSearch = function(_channel, _control, value, _status, group) {
-    group = PioneerDDJ400.groups[group]
+    group = PioneerDDJ400.groups[group];
     var newVal = (value - 64) * PioneerDDJ400.fastSeekScale;
     engine.setValue(group, "jog", newVal);
 };
@@ -958,12 +1002,12 @@ PioneerDDJ400.shiftPressed = function(channel, _control, value, _status, group) 
 //
 
 PioneerDDJ400.tempoSliderMSB = function(channel, control, value, status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     PioneerDDJ400.highResMSB[deck].tempoSlider = value;
 };
 
 PioneerDDJ400.tempoSliderLSB = function(channel, control, value, status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     var fullValue = (PioneerDDJ400.highResMSB[deck].tempoSlider << 7) + value;
 
     engine.setValue(
@@ -982,7 +1026,7 @@ PioneerDDJ400.hotcuePadFunction = function(property, padNum) {
         var deck = PioneerDDJ400.groups[group];
         var light = PioneerDDJ400.lights[group].hotcuePad(padNum);
         engine.setValue(deck, property, value);
-        PioneerDDJ400.toggleLight(light, engine.getValue(deck, 'hotcue_' + padNum + '_enabled'));
+        PioneerDDJ400.toggleLight(light, engine.getValue(deck, "hotcue_" + padNum + "_enabled"));
     };
 };
 
@@ -991,7 +1035,7 @@ PioneerDDJ400.hotcuePadFunction = function(property, padNum) {
 //
 
 PioneerDDJ400.beatLoopPadLoopLengths = [
-    '0.25', '0.5', '1', '2', '4', '8', '16', '32'
+    "0.25", "0.5", "1", "2", "4", "8", "16", "32"
 ];
 
 PioneerDDJ400.beatLoopPadFunction = function(property) {
@@ -1011,7 +1055,7 @@ PioneerDDJ400.beatLoopPadFunction = function(property) {
 //
 
 PioneerDDJ400.beatjumpPadPressed = function(_channel, control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (value === 0) {
         return;
     }
@@ -1020,7 +1064,7 @@ PioneerDDJ400.beatjumpPadPressed = function(_channel, control, value, _status, g
 };
 
 PioneerDDJ400.increaseBeatjumpSizes = function(_channel, control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
 
     if (value === 0 || PioneerDDJ400.beatjumpSizeForPad[0x21] * 16 > 16) {
         return;
@@ -1032,7 +1076,7 @@ PioneerDDJ400.increaseBeatjumpSizes = function(_channel, control, value, _status
 };
 
 PioneerDDJ400.decreaseBeatjumpSizes = function(_channel, control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
 
     if (value === 0 || PioneerDDJ400.beatjumpSizeForPad[0x21] / 16 < 1/16) {
         return;
@@ -1048,7 +1092,7 @@ PioneerDDJ400.decreaseBeatjumpSizes = function(_channel, control, value, _status
 //
 
 PioneerDDJ400.samplerPlayOutputCallbackFunction = function(value, group) {
-    print('sCallback');
+    print("sCallback");
     print(value);
     print(group);
     if (value === 1) {
@@ -1121,14 +1165,14 @@ PioneerDDJ400.toggleQuantize = function(_channel, _control, value, _status, grou
 };
 
 PioneerDDJ400.quickJumpForward = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (value) {
         engine.setValue(deck, "beatjump", PioneerDDJ400.quickJumpSize);
     }
 };
 
 PioneerDDJ400.quickJumpBack = function(_channel, _control, value, _status, group) {
-    var deck = PioneerDDJ400.groups[group]
+    var deck = PioneerDDJ400.groups[group];
     if (value) {
         engine.setValue(deck, "beatjump", -PioneerDDJ400.quickJumpSize);
     }
@@ -1140,8 +1184,8 @@ PioneerDDJ400.quickJumpBack = function(_channel, _control, value, _status, group
 
 PioneerDDJ400.shutdown = function() {
     // reset vumeter
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel1]'].vuMeter, false);
-    PioneerDDJ400.toggleLight(PioneerDDJ400.lights['[Channel2]'].vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights["[Channel1]"].vuMeter, false);
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights["[Channel2]"].vuMeter, false);
 
     // housekeeping
     // turn off all Sampler LEDs

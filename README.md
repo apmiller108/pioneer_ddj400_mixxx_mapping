@@ -18,12 +18,13 @@
 - [x] Update the EQ controls to operate on decks 3 and 4
 - [x] Update trim controls to operate on decks 3 and 4
 - [x] Update filter controls to operate on decks 3 and 4
-- [ ] Use softTakeover for EQ, trim and volume faders
+- [x] Use softTakeover for EQ, trim, filter and volume faders
 - [x] See if anything needs to be done with SAMPLER pads
 - [x] Investigate pad buttons + shift mappings
+- [ ] Initialize channels 3 and 4 trim and volume fader to match channels 1 and 2 respectively.
 - [ ] Update shutdown to flip off the beat sync light, loop pads, hot cue pads
 - [ ] Remove or remap toggle quantize (it's already bound to bpm tap)
-- [ ] Move LEVEL/DEPTH + SHIFT customization to a branch
+- [ ] Move LEVEL/DEPTH + SHIFT customization to a branch (beatFxLevelDepthRotate)
 - [ ] Clean up XML (delete commented out outputs)
 - [ ] Clean up JS
 - [ ] Update code comments as needed
