@@ -8,6 +8,7 @@
         "ecmaVersion": "latest"
     },
     "rules": {
+        "semi": ["error", "always"]
     },
     "globals": {
         "midi": "readonly",

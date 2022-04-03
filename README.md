@@ -16,8 +16,9 @@
 - [x] Update fader controls to operate on decks 3 and 4
 - [x] Consider how to set faders 3 and 4 on init
 - [x] Update the EQ controls to operate on decks 3 and 4
-- [ ] Update trim controls to operate on decks 3 and 4
+- [x] Update trim controls to operate on decks 3 and 4
 - [ ] Update filter controls to operate on decks 3 and 4
+- [ ] Use softTakeover for EQ, trim and volume faders
 - [ ] See if anything needs to be done with SAMPLER pads
 - [ ] Investigate pad buttons + shift mappings
 - [ ] Update shutdown to flip off the beat sync light
