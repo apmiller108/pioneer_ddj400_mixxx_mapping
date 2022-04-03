@@ -21,7 +21,6 @@
 - [x] Use softTakeover for EQ, trim, filter and volume faders
 - [x] See if anything needs to be done with SAMPLER pads
 - [x] Investigate pad buttons + shift mappings
-- [ ] Initialize channels 3 and 4 trim and volume fader to match channels 1 and 2 respectively.
 - [ ] Update shutdown to flip off the beat sync light, loop pads, hot cue pads
 - [ ] Remove or remap toggle quantize (it's already bound to bpm tap)
 - [ ] Move LEVEL/DEPTH + SHIFT customization to a branch (beatFxLevelDepthRotate)
@@ -34,11 +33,17 @@
 
 ## Notes
 
-- Long pressing of BEATSYNC will still enable sync for the active deck; however,
-  it will not turn on the BEATSYNC light. When the `BEATSYNC` light is on, that
+- Long pressing of `BEATSYNC` will still enable `sync` for the active deck; however,
+  it will not turn on the `BEATSYNC` light. When the `BEATSYNC` light is on, that
   indicates the alternate deck is being controlled (ie, decks 3 and 4).
 - Secondary pad modes (keyboard, pad FX1, pad FX2, and key shift ) are still not
-  implemented with this. These would be activated by the pad mode button +SHIFT.
+  implemented with this. These would normally be activated by the pad mode
+  button +SHIFT. Doing so will make the button begin flashing, but will not do
+  anything.
+- `pfl +SHIFT` (channel cue +SHIFT) is mapped to two things: 1) toggle
+  `quantize` and 2) `bpm_tap`. This was part of the existing mapping and seems
+  fine. `bpm_tap` appears to take at least 3 taps over a short time in order to
+  take affect so it's unlikely to be activated when just toggleing the `quantize`.
 
 ## Resources
 

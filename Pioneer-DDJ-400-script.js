@@ -5,7 +5,7 @@
 //
 // Authors: apmiller108
 //
-// ORIGINAL NOTES FOR 2-DECK CONTROLLER MAPPING
+// ORIGINAL NOTES FOR 2-DECK CONTROLLER MAPPING BELOW:
 //
 // Pioneer-DDJ-400-script.js
 //
@@ -388,12 +388,14 @@ PioneerDDJ400.init = function() {
     engine.setValue(PioneerDDJ400.channels[2], "volume", 0);
     engine.setValue(PioneerDDJ400.channels[3], "volume", 0);
 
-    // query the controller for current control positions on startup
+    // Query the controller for current control positions on startup. The
+    // controller will response with messages that will initialize Mixxx's
+    // controls.
     midi.sendSysexMsg([0xF0, 0x00, 0x40, 0x05, 0x00, 0x00, 0x02, 0x06, 0x00, 0x03, 0x01, 0xf7], 12);
 };
 
 //
-// Toggle deck (BEATSYNC +SHIFT)
+// Toggle deck
 //
 PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
     if (value === 127) {
@@ -1167,8 +1169,9 @@ PioneerDDJ400.stopSamplerBlink = function(channel, control) {
 //
 
 PioneerDDJ400.toggleQuantize = function(_channel, _control, value, _status, group) {
+    var deck = PioneerDDJ400.groups[group];
     if (value) {
-        script.toggleControl(group, "quantize");
+        script.toggleControl(deck, "quantize");
     }
 };
 
