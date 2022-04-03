@@ -93,8 +93,8 @@ PioneerDDJ400.lights = {
             status: 0x90,
             midinos: [0x58, 0x60]
         },
-        hotcuePad: function(padNum) {
-            var status = PioneerDDJ400.shiftButtonDown[0] ? 0x98 : 0x97;
+        hotcuePad: function(padNum, shift) {
+            var status = (PioneerDDJ400.shiftButtonDown[0] || shift) ? 0x98 : 0x97;
             var data1 = 0x00 + (padNum - 1);
             return { status: status, data1: data1 };
         },
@@ -446,7 +446,7 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
 
 PioneerDDJ400.initDeck = function(group) {
     var deckToggleLight = PioneerDDJ400.lights[group].beatSync;
-    var deckNumber = group.match(script.channelRegEx)[1];
+    var deckNumber = script.deckFromGroup(group);
 
     // BEAT SYNC is lit for deck 1 when deck 3 is active and for deck 2 when
     // deck 4 is active.
@@ -1206,13 +1206,31 @@ PioneerDDJ400.shutdown = function() {
         midi.sendShortMsg(0x99, 0x30 + i, 0x00);    // Deck 2 pads
         midi.sendShortMsg(0x9A, 0x30 + i, 0x00);    // Deck 2 pads with SHIFT
     }
-    // turn off all Hotcue LEDs
-    for (i = 0; i <= 7; ++i) {
-        midi.sendShortMsg(0x97, 0x00 + i, 0x00);    // Deck 1 pads
-        midi.sendShortMsg(0x98, 0x00 + i, 0x00);    // Deck 1 pads with SHIFT
-        midi.sendShortMsg(0x99, 0x00 + i, 0x00);    // Deck 2 pads
-        midi.sendShortMsg(0x9A, 0x00 + i, 0x00);    // Deck 2 pads with SHIFT
-    }
+
+    PioneerDDJ400.channels.forEach(function(channel) {
+        // turn off all Beat Loop and Hotcue LEDs
+        for (var padNum = 1; padNum <= 8; ++padNum) {
+            var beatLoopLight = PioneerDDJ400.lights[channel].beatLoopPad(padNum);
+            PioneerDDJ400.toggleLight(beatLoopLight, 0x00);
+
+            var hotCueLight = PioneerDDJ400.lights[channel].hotcuePad(padNum);
+            PioneerDDJ400.toggleLight(hotCueLight, 0x00);
+
+            var hotCueLightShifted = PioneerDDJ400.lights[channel].hotcuePad(padNum, true);
+            PioneerDDJ400.toggleLight(hotCueLightShifted, 0x00);
+        }
+
+        // Turn off Beat Sync LEDs
+        var beatSyncLight = PioneerDDJ400.lights[channel].beatSync;
+        beatSyncLight.midinos.forEach(function(midino) {
+            midi.sendShortMsg(beatSyncLight.status, midino, 0x00);
+        });
+
+        // Turn off PFL LEDs
+        var pflLight = PioneerDDJ400.lights[channel].pfl;
+        PioneerDDJ400.toggleLight(pflLight, 0x00);
+    });
+
 
     // turn off loop in and out lights
     PioneerDDJ400.setLoopButtonLights(0x90, 0x00);

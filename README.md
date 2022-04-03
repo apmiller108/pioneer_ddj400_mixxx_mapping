@@ -21,16 +21,19 @@
 - [x] Use softTakeover for EQ, trim, filter and volume faders
 - [x] See if anything needs to be done with SAMPLER pads
 - [x] Investigate pad buttons + shift mappings
-- [ ] Update shutdown to flip off the beat sync light, loop pads, hot cue pads
-- [ ] Remove or remap toggle quantize (it's already bound to bpm tap)
-- [ ] Move LEVEL/DEPTH + SHIFT customization to a branch (beatFxLevelDepthRotate)
-- [ ] Clean up XML (delete commented out outputs)
+- [x] Update shutdown to flip off the beat sync light, loop pads, hot cue pads
+- [x] Clean up XML (delete commented out outputs)
 - [ ] Clean up JS
 - [ ] Update code comments as needed
 - [ ] Update README with instructions
+- [ ] Move LEVEL/DEPTH + SHIFT customization to a branch (beatFxLevelDepthRotate)
 - [ ] Post in [forum](https://mixxx.discourse.group/t/pioneer-ddj-400/17476) for feedback
+- [ ] Update `forums` XML node with link
 - [ ] Post in [Controller mappings forum](https://mixxx.discourse.group/c/controller-mappings/10) for feedback
 
+[DDJ400 manual for 2 deck controller](https://manual.mixxx.org/2.3/en/hardware/controllers/pioneer_ddj_400.html)
+
+Pressing `BEATSYNC +SHIFT` will toggle desks. `cycleTempoRange` is no longer mapped.
 ## Notes
 
 - Long pressing of `BEATSYNC` will still enable `sync` for the active deck; however,
