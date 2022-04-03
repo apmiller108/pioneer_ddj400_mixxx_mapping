@@ -359,11 +359,8 @@ PioneerDDJ400.init = function() {
         engine.makeConnection("[Sampler" + i + "]", "play", PioneerDDJ400.samplerPlayOutputCallbackFunction);
     }
 
-    // Loop over groups and setup connection callbacks and soft takeovers
+    // Loop over groups and setup connection callbacks
     PioneerDDJ400.channels.forEach(function(channel) {
-        engine.softTakeover(channel, "rate", true);
-        engine.softTakeover(channel, "pregain", true);
-        engine.softTakeover(channel, "volume", true);
         engine.makeConnection(channel, "track_loaded", PioneerDDJ400.onTrackLoaded);
         engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
         engine.makeConnection(channel, "loop_enabled", PioneerDDJ400.onLoopEnabled);
@@ -371,27 +368,7 @@ PioneerDDJ400.init = function() {
         engine.makeConnection(channel, "cue_indicator", PioneerDDJ400.onCueIndicator);
     });
 
-    PioneerDDJ400.equalizerRacks.forEach(function(eqRack) {
-        engine.softTakeover(eqRack, "parameter1", true);
-        engine.softTakeover(eqRack, "parameter2", true);
-        engine.softTakeover(eqRack, "parameter3", true);
-    });
-
-    PioneerDDJ400.quickEffectRacks.forEach(function(qfxRack) {
-        engine.softTakeover(qfxRack, "super1", true);
-    });
-
-    // play the "track loaded" animation on both decks at startup
-    midi.sendShortMsg(0x9F, 0x00, 0x7F);
-    midi.sendShortMsg(0x9F, 0x01, 0x7F);
-
-    PioneerDDJ400.setLoopButtonLights(0x90, 0x7F);
-    PioneerDDJ400.setLoopButtonLights(0x91, 0x7F);
-
-    // query the controller for current control positions on startup
-    midi.sendSysexMsg([0xF0, 0x00, 0x40, 0x05, 0x00, 0x00, 0x02, 0x06, 0x00, 0x03, 0x01, 0xf7], 12);
-
-    // Initialize hotcue and beatloop pads
+    // Initialize hotcue and beatloop pad functions
     for (i = 1; i <= 8; i++) {
         PioneerDDJ400["hotcue" + i + "Activate"] = PioneerDDJ400.hotcuePadFunction("hotcue_" + i + "_activate", i);
         PioneerDDJ400["hotcue" + i + "Clear"] = PioneerDDJ400.hotcuePadFunction("hotcue_" + i + "_clear", i);
@@ -400,6 +377,19 @@ PioneerDDJ400.init = function() {
         PioneerDDJ400["beatloop" + loopLength.replace(".", "") + "Toggle"]
             = PioneerDDJ400.beatLoopPadFunction("beatloop_" + loopLength + "_toggle", i);
     }
+
+    // play the "track loaded" animation on both decks at startup
+    midi.sendShortMsg(0x9F, 0x00, 0x7F);
+    midi.sendShortMsg(0x9F, 0x01, 0x7F);
+
+    PioneerDDJ400.setLoopButtonLights(0x90, 0x7F);
+    PioneerDDJ400.setLoopButtonLights(0x91, 0x7F);
+
+    engine.setValue(PioneerDDJ400.channels[2], "volume", 0);
+    engine.setValue(PioneerDDJ400.channels[3], "volume", 0);
+
+    // query the controller for current control positions on startup
+    midi.sendSysexMsg([0xF0, 0x00, 0x40, 0x05, 0x00, 0x00, 0x02, 0x06, 0x00, 0x03, 0x01, 0xf7], 12);
 };
 
 //
@@ -429,6 +419,24 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
         var quickFxGroup = PioneerDDJ400.quickEffectRacks[groupNum - 1];
         var newQuickFxGroup = PioneerDDJ400.quickEffectRacks[newGroupNum - 1];
         PioneerDDJ400.groups[quickFxGroup] = newQuickFxGroup;
+
+        // Setup soft takoevers. Doing there here instead of on `init()` to keep
+        // the values initialized properly from the call to `sendSysexMsg`
+        PioneerDDJ400.channels.forEach(function(channel) {
+            engine.softTakeover(channel, "rate", true);
+            engine.softTakeover(channel, "pregain", true);
+            engine.softTakeover(channel, "volume", true);
+        });
+
+        PioneerDDJ400.quickEffectRacks.forEach(function(qfxRack) {
+            engine.softTakeover(qfxRack, "super1", true);
+        });
+
+        PioneerDDJ400.equalizerRacks.forEach(function(eqRack) {
+            engine.softTakeover(eqRack, "parameter1", true);
+            engine.softTakeover(eqRack, "parameter2", true);
+            engine.softTakeover(eqRack, "parameter3", true);
+        });
 
         PioneerDDJ400.initDeck(newChannel);
     }
