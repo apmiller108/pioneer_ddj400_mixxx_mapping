@@ -34,6 +34,9 @@
 
 ## Notes
 
+- Long pressing of BEATSYNC will still enable sync for the active deck; however,
+  it will not turn on the BEATSYNC light. When the `BEATSYNC` light is on, that
+  indicates the alternate deck is being controlled (ie, decks 3 and 4).
 - Secondary pad modes (keyboard, pad FX1, pad FX2, and key shift ) are still not
   implemented with this. These would be activated by the pad mode button +SHIFT.
 
