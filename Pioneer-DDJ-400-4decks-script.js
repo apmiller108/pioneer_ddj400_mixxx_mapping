@@ -362,10 +362,6 @@ PioneerDDJ400.onCueIndicator = function(value, group) {
 //
 
 PioneerDDJ400.init = function() {
-    // VuMeter
-    engine.makeConnection("[Channel1]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
-    engine.makeConnection("[Channel2]", "VuMeter", PioneerDDJ400.vuMeterUpdate);
-
     PioneerDDJ400.toggleLight(PioneerDDJ400.lights["[Channel1]"].vuMeter, false);
     PioneerDDJ400.toggleLight(PioneerDDJ400.lights["[Channel2]"].vuMeter, false);
 
@@ -390,6 +386,7 @@ PioneerDDJ400.init = function() {
 
     // Loop over groups and setup connection callbacks
     PioneerDDJ400.channels.forEach(function(channel) {
+        engine.makeConnection(channel, "VuMeter", PioneerDDJ400.vuMeterUpdate);
         engine.makeConnection(channel, "track_loaded", PioneerDDJ400.onTrackLoaded);
         engine.makeConnection(channel, "eject", PioneerDDJ400.onEject);
         engine.makeConnection(channel, "loop_enabled", PioneerDDJ400.onLoopEnabled);
@@ -493,6 +490,8 @@ PioneerDDJ400.initDeck = function(group) {
     PioneerDDJ400.initPlay(group);
     PioneerDDJ400.initCueIndicator(group);
     PioneerDDJ400.initPfl(group);
+
+    PioneerDDJ400.toggleLight(PioneerDDJ400.lights[group].vuMeter, false);
 };
 
 PioneerDDJ400.initHotcueLights = function(_value, group) {
@@ -553,14 +552,12 @@ PioneerDDJ400.loadSelectedTrack = function(_channel, _control, value, _status, g
 PioneerDDJ400.vuMeterUpdate = function(value, group) {
     var newVal = value * 150;
 
-    switch (group) {
-    case "[Channel1]":
+    if (PioneerDDJ400.groups["[Channel1]"] === group) {
         midi.sendShortMsg(0xB0, 0x02, newVal);
-        break;
+    }
 
-    case "[Channel2]":
+    if (PioneerDDJ400.groups["[Channel2]"] === group) {
         midi.sendShortMsg(0xB1, 0x02, newVal);
-        break;
     }
 };
 
