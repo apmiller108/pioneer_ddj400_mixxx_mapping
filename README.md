@@ -10,9 +10,9 @@ This is based on the [existing 2-deck script mapping](https://manual.mixxx.org/2
   Channel3; Channel2 can be toggled to control Channel4.
 - Toggling decks will switch all deck controlls (ie, pitch, play, pads, etc.) to the new deck.
 - Channel faders, headphone cueing, EQ, filters, trim, track loading, and VU meter will also be switched.
-- Channle faders, EQ and filters use
+- Channel faders, EQ, filters, and trim use
   [softTakeover](https://github.com/mixxxdj/mixxx/wiki/Midi-Scripting#soft-takeover)
-  to avoid large jumps in values when switching decsk.
+  to avoid large jumps in values when switching decks and using those controls.
 - An solidly illumniated `BEATSYNC` button means the alternate deck is currently
   being controlled (ie, deck 1 is controlling deck 3, etc.)
 
