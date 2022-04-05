@@ -1,9 +1,10 @@
-// This is a 4-deck controller mapping for the Pioneer DDJ-400 to work with
-// Mixxx DJ software. It is based on the 2-deck controller mapping:
-// https://github.com/mixxxdj/mixxx/blob/main/res/controllers/Pioneer-DDJ-400-script.js.
-// See notes for original 2-deck mapping below.
-//
-// Authors: apmiller108
+// ****************************************************************************
+// * Mixxx mapping script file for the Pioneer DDJ-400 to operate 4 decks
+// * It is based on the original 2 deck controller mapping:
+// * https://github.com/mixxxdj/mixxx/blob/main/res/controllers/Pioneer-DDJ-400-script.js.
+// * Authors: apmiller108
+// * Repo: https://github.com/apmiller108/pioneer_ddj400_mixxx_mapping
+// ****************************************************************************
 //
 // ORIGINAL NOTES FOR 2-DECK CONTROLLER MAPPING BELOW:
 //
@@ -55,6 +56,10 @@
 
 var PioneerDDJ400 = {};
 
+//
+// LED map
+//
+
 PioneerDDJ400.lights = {
     beatFx: {
         status: 0x94,
@@ -91,7 +96,7 @@ PioneerDDJ400.lights = {
         },
         beatSync: {
             status: 0x90,
-            midinos: [0x58, 0x60]
+            midinos: [0x58, 0x60] // normal and shift
         },
         hotcuePad: function(padNum, shift) {
             var status = (PioneerDDJ400.shiftButtonDown[0] || shift) ? 0x98 : 0x97;
@@ -101,6 +106,10 @@ PioneerDDJ400.lights = {
         beatLoopPad: function(padNum) {
             var data1 = 0x60 + (padNum - 1);
             return { status: 0x97, data1: data1 };
+        },
+        reloop: {
+            status: 0x90,
+            midinos: [0x4D, 0x50] // normal and shift
         }
     },
     "[Channel2]": {
@@ -140,6 +149,10 @@ PioneerDDJ400.lights = {
         beatLoopPad: function(padNum) {
             var data1 = 0x60 + (padNum - 1);
             return { status: 0x99, data1: data1 };
+        },
+        reloop: {
+            status: 0x91,
+            midinos: [0x4D, 0x50] // normal and shift
         }
     }
 };
@@ -147,6 +160,10 @@ PioneerDDJ400.lights = {
 // Copy Channel lights to their respective toggle channels
 PioneerDDJ400.lights["[Channel3]"] = PioneerDDJ400.lights["[Channel1]"];
 PioneerDDJ400.lights["[Channel4]"] = PioneerDDJ400.lights["[Channel2]"];
+
+//
+// Constants
+//
 
 PioneerDDJ400.channels = [
     "[Channel1]",
@@ -238,6 +255,7 @@ PioneerDDJ400.highResMSB = {
 // Helper Functions
 //
 
+// Returns the controller channel given an group (eg, [Channel1] or [Channel2])
 PioneerDDJ400.activeDeckForGroup = function(group) {
     return _.find(_.keys(PioneerDDJ400.groups), function(key) {
         return PioneerDDJ400.groups[key] === group;
@@ -260,10 +278,9 @@ PioneerDDJ400.deckNumberFromGroup = function(group) {
 };
 
 PioneerDDJ400.channelIndex = function(group) {
-    return parseInt(script.channelRegEx.exec(group)[1]) - 1;
+    return _.findIndex(PioneerDDJ400.channels, function(c) { return c === group; });
 };
 
-// Based on https://github.com/mixxxdj/mixxx/blob/main/src/controllers/midi/midicontroller.cpp#L316-L336
 PioneerDDJ400.combineMsbLsb = function(msb, lsb) {
     var combinedValue = (msb << 7) + lsb;
     return Math.min((combinedValue / 0x80), 127);
@@ -314,8 +331,7 @@ PioneerDDJ400.onEject = function(_value, group) {
 };
 
 PioneerDDJ400.onLoopEnabled = function(value, group, control) {
-    var activeDeck = PioneerDDJ400.activeDeckForGroup(group);
-    PioneerDDJ400.loopToggle(value, activeDeck, control);
+    PioneerDDJ400.loopToggle(value, group, control);
 };
 
 PioneerDDJ400.onPlay = function(value, group) {
@@ -810,9 +826,11 @@ PioneerDDJ400.toggleLoopAdjustOut = function(_channel, _control, value, _status,
 };
 
 // Two signals are sent here so that the light stays lit/unlit in its shift state too
-PioneerDDJ400.setReloopLight = function(status, value) {
-    midi.sendShortMsg(status, 0x4D, value);
-    midi.sendShortMsg(status, 0x50, value);
+PioneerDDJ400.setReloopLight = function(light, value) {
+    light.midinos.forEach(function(midino) {
+        midi.sendShortMsg(light.status, midino, value);
+        midi.sendShortMsg(light.status, midino, value);
+    });
 };
 
 
@@ -823,13 +841,12 @@ PioneerDDJ400.setLoopButtonLights = function(status, value) {
 };
 
 PioneerDDJ400.startLoopLightsBlink = function(channel, control, status, group) {
-    var deck = PioneerDDJ400.groups[group];
-    var index = PioneerDDJ400.channelIndex(deck);
+    var index = PioneerDDJ400.channelIndex(group);
     var blink = 0x7F;
 
-    PioneerDDJ400.stopLoopLightsBlink(deck, control, status);
+    PioneerDDJ400.stopLoopLightsBlink(group, control, status);
 
-    PioneerDDJ400.timers[deck][control] = engine.beginTimer(500, function() {
+    PioneerDDJ400.timers[group][control] = engine.beginTimer(500, function() {
         blink = 0x7F - blink;
 
         // When adjusting the loop out position, turn the loop in light off
@@ -864,17 +881,19 @@ PioneerDDJ400.stopLoopLightsBlink = function(group, control, status) {
 };
 
 PioneerDDJ400.loopToggle = function(value, group, control) {
-    var status = group === "[Channel1]" ? 0x90 : 0x91,
-        channel = group === "[Channel1]" ? 0 : 1;
+    var activeDeck = PioneerDDJ400.activeDeckForGroup(group);
+    var reloopLight = PioneerDDJ400.lights[activeDeck].reloop;
+    var status = reloopLight.status;
+    var channelNum = PioneerDDJ400.channelIndex(activeDeck);
 
-    PioneerDDJ400.setReloopLight(status, value ? 0x7F : 0x00);
+    PioneerDDJ400.setReloopLight(reloopLight, value ? 0x7F : 0x00);
 
     if (value) {
-        PioneerDDJ400.startLoopLightsBlink(channel, control, status, group);
+        PioneerDDJ400.startLoopLightsBlink(channelNum, control, status, activeDeck);
     } else {
-        PioneerDDJ400.stopLoopLightsBlink(group, control, status);
-        PioneerDDJ400.loopAdjustIn[channel] = false;
-        PioneerDDJ400.loopAdjustOut[channel] = false;
+        PioneerDDJ400.stopLoopLightsBlink(activeDeck, control, status);
+        PioneerDDJ400.loopAdjustIn[channelNum] = false;
+        PioneerDDJ400.loopAdjustOut[channelNum] = false;
     }
 };
 
@@ -1102,9 +1121,6 @@ PioneerDDJ400.decreaseBeatjumpSizes = function(_channel, control, value, _status
 //
 
 PioneerDDJ400.samplerPlayOutputCallbackFunction = function(value, group) {
-    print("sCallback");
-    print(value);
-    print(group);
     if (value === 1) {
         var curPad = group.match(script.samplerRegEx)[1];
         PioneerDDJ400.startSamplerBlink(
@@ -1229,16 +1245,16 @@ PioneerDDJ400.shutdown = function() {
         // Turn off PFL LEDs
         var pflLight = PioneerDDJ400.lights[channel].pfl;
         PioneerDDJ400.toggleLight(pflLight, 0x00);
+
+        // Turn off Reloop LEDs
+        var reloopLight = PioneerDDJ400.lights[channel].reloop;
+        PioneerDDJ400.setReloopLight(reloopLight, 0x00);
     });
 
 
     // turn off loop in and out lights
     PioneerDDJ400.setLoopButtonLights(0x90, 0x00);
     PioneerDDJ400.setLoopButtonLights(0x91, 0x00);
-
-    // turn off reloop lights
-    PioneerDDJ400.setReloopLight(0x90, 0x00);
-    PioneerDDJ400.setReloopLight(0x91, 0x00);
 
     // stop any flashing lights
     PioneerDDJ400.toggleLight(PioneerDDJ400.lights.beatFx, false);

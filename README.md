@@ -28,8 +28,9 @@
 - [ ] Update README with instructions
 - [ ] Move LEVEL/DEPTH + SHIFT customization to a branch (beatFxLevelDepthRotate)
 - [ ] Post in [forum](https://mixxx.discourse.group/t/pioneer-ddj-400/17476) for feedback
-- [ ] Update `forums` XML node with link
 - [ ] Post in [Controller mappings forum](https://mixxx.discourse.group/c/controller-mappings/10) for feedback
+- [ ] Update `forums` XML node with link
+- [ ] Figure out something to do with BEAT FX for channels 3 and 4
 
 [DDJ400 manual for 2 deck controller](https://manual.mixxx.org/2.3/en/hardware/controllers/pioneer_ddj_400.html)
 
@@ -47,6 +48,7 @@ Pressing `BEATSYNC +SHIFT` will toggle desks. `cycleTempoRange` is no longer map
   `quantize` and 2) `bpm_tap`. This was part of the existing mapping and seems
   fine. `bpm_tap` appears to take at least 3 taps over a short time in order to
   take affect so it's unlikely to be activated when just toggleing the `quantize`.
+- MSB/LSB based on: https://github.com/mixxxdj/mixxx/blob/main/src/controllers/midi/midicontroller.cpp#L316-L336
 
 ## Resources
 
