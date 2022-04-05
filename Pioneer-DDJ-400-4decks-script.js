@@ -368,10 +368,8 @@ PioneerDDJ400.init = function() {
     // EffectRack
     engine.setValue("[EffectRack1_EffectUnit1]", "show_focus", 1);
 
-    engine.softTakeover("[EffectRack1_EffectUnit1_Effect1]", "meta", true);
-    engine.softTakeover("[EffectRack1_EffectUnit1_Effect2]", "meta", true);
-    engine.softTakeover("[EffectRack1_EffectUnit1_Effect3]", "meta", true);
     engine.softTakeover("[EffectRack1_EffectUnit1]", "mix", true);
+    engine.softTakeover("[EffectRack1_EffectUnit2]", "mix", true);
 
     var i;
     for (i = 1; i <= 3; i++) {
@@ -684,9 +682,9 @@ PioneerDDJ400.focusedFxGroup = function() {
 PioneerDDJ400.beatFxLevelDepthRotate = function(_channel, _control, value) {
     if (PioneerDDJ400.shiftButtonDown[0] || PioneerDDJ400.shiftButtonDown[1]) {
         engine.softTakeoverIgnoreNextValue("[EffectRack1_EffectUnit1]", "mix");
-        engine.setParameter(PioneerDDJ400.focusedFxGroup(), "meta", value / 0x7F);
+        engine.setParameter("[EffectRack1_EffectUnit2]", "mix", value / 0x7F);
     } else {
-        engine.softTakeoverIgnoreNextValue(PioneerDDJ400.focusedFxGroup(), "meta");
+        engine.softTakeoverIgnoreNextValue("[EffectRack1_EffectUnit2]", "mix");
         engine.setParameter("[EffectRack1_EffectUnit1]", "mix", value / 0x7F);
     }
 };
