@@ -400,7 +400,6 @@
             <control>
                 <description>BEAT SYNC +SHIFT (DECK2) - press - change Tempo range</description>
                 <group>[Channel2]</group>
-                <!-- <key>PioneerDDJ400.cycleTempoRange</key> -->
                 <key>PioneerDDJ400.toggleDeck</key>
                 <status>0x91</status>
                 <midino>0x60</midino>

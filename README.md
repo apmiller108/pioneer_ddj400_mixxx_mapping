@@ -1,4 +1,4 @@
-# pioneer_ddj400_mixxx_mapping
+# Mixxx Mapping for Pioneer DDJ400 for 4 Deck Control
 4 deck script mapping for the Pioneer DDJ 400 controller for Mixxx
 
 ## TODOs
@@ -23,8 +23,9 @@
 - [x] Investigate pad buttons + shift mappings
 - [x] Update shutdown to flip off the beat sync light, loop pads, hot cue pads
 - [x] Clean up XML (delete commented out outputs)
-- [ ] Clean up JS
-- [ ] Update code comments as needed
+- [x] Clean up JS
+- [x] Update code comments as needed
+- [ ] Configure VU meter
 - [ ] Update README with instructions
 - [ ] Move LEVEL/DEPTH + SHIFT customization to a branch (beatFxLevelDepthRotate)
 - [ ] Post in [forum](https://mixxx.discourse.group/t/pioneer-ddj-400/17476) for feedback
@@ -54,8 +55,9 @@ Pressing `BEATSYNC +SHIFT` will toggle desks. `cycleTempoRange` is no longer map
 
 - [Pioneer DDJ-400 forum](https://mixxx.discourse.group/t/pioneer-ddj-400/17476)
 - [Pioneer DDJ-400 midi messages PDF](https://www.pioneerdj.com/-/media/pioneerdj/software-info/controller/ddj-400/ddj-400_midi_message_list_e1.pdf?la=en&hash=21267BEBE0C043449CBC2A039996279E3D14B8EB)
-- [Mixxx's midi-scripting docs](https://github.com/mixxxdj/mixxx/wiki/Midi-Scripting)
 - [Mixxx's Contribute Mappings docs](https://github.com/mixxxdj/mixxx/wiki/Contributing-Mappings)
+- [Mixxx's midi-scripting docs](https://github.com/mixxxdj/mixxx/wiki/Midi-Scripting)
 - [Mixxx's controls docs](https://manual.mixxx.org/2.3/en/chapters/appendix/mixxx_controls.html)
+- [Mixxx's Midi Controller Mapping File Format docs](https://github.com/mixxxdj/mixxx/wiki/MIDI%20controller%20mapping%20file%20format)
 - [Mixxx's troubleshooting docs](https://github.com/mixxxdj/mixxx/wiki/troubleshooting)
 

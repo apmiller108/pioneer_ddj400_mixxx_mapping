@@ -6,6 +6,13 @@
 // * Repo: https://github.com/apmiller108/pioneer_ddj400_mixxx_mapping
 // ****************************************************************************
 //
+//  Notes:
+//      * Decks are toggled using BEATSYNC +SHIFT.
+//      * Trim, EQ, filters, PFL, volume faders, tracking loading, hotcue pads,
+//        beat loop pads, beat jump pads are also toggled to operate on extra channels.
+//      * BEATSYNC LED on when extra decks (3 and 4) are active.
+//      * Cycle tempo range (previous mapped to BEATSYNC +SHIFT) is no longer mapped.
+//
 // ORIGINAL NOTES FOR 2-DECK CONTROLLER MAPPING BELOW:
 //
 // Pioneer-DDJ-400-script.js
@@ -220,6 +227,11 @@ PioneerDDJ400.loopAdjustIn = [false, false, false, false];
 PioneerDDJ400.loopAdjustOut = [false, false, false, false];
 PioneerDDJ400.loopAdjustMultiply = 50;
 
+// Beatloop pad loop lenghts
+PioneerDDJ400.beatLoopPadLoopLengths = [
+    "0.25", "0.5", "1", "2", "4", "8", "16", "32"
+];
+
 // Beatjump pad (beatjump_size values)
 PioneerDDJ400.beatjumpSizeForPad = {
     0x20: -1, // PAD 1
@@ -331,6 +343,7 @@ PioneerDDJ400.onEject = function(_value, group) {
 };
 
 PioneerDDJ400.onLoopEnabled = function(value, group, control) {
+    // Group will be one the 4 channels in this context
     PioneerDDJ400.loopToggle(value, group, control);
 };
 
@@ -425,7 +438,7 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
             newGroupNum = currentGroupNum - 2;
         }
 
-        var newChannel = "[Channel" + newGroupNum + "]";
+        var newChannel = PioneerDDJ400.channels[newGroupNum - 1];
         PioneerDDJ400.groups[group] = newChannel;
 
         // Toggle EQ rack to operate on new channel
@@ -438,8 +451,8 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
         var newQuickFxGroup = PioneerDDJ400.quickEffectRacks[newGroupNum - 1];
         PioneerDDJ400.groups[quickFxGroup] = newQuickFxGroup;
 
-        // Setup soft takoevers. Doing there here instead of on `init()` to keep
-        // the values initialized properly from the call to `sendSysexMsg`
+        // Setup soft takoevers. Doing this here instead of on `init()` where
+        // it seemms to render from the call to `sendSysexMsg` useless.
         PioneerDDJ400.channels.forEach(function(channel) {
             engine.softTakeover(channel, "rate", true);
             engine.softTakeover(channel, "pregain", true);
@@ -635,6 +648,10 @@ PioneerDDJ400.bpmTap = function(_channel, _control, value, _status, group) {
         engine.setValue(deck, "bpm_tap", value);
     }
 };
+
+//
+// Volume faders
+//
 
 PioneerDDJ400.volumeFaderMsb = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
@@ -881,6 +898,7 @@ PioneerDDJ400.stopLoopLightsBlink = function(group, control, status) {
 };
 
 PioneerDDJ400.loopToggle = function(value, group, control) {
+    // Group will be one the 4 channels in this context
     var activeDeck = PioneerDDJ400.activeDeckForGroup(group);
     var reloopLight = PioneerDDJ400.lights[activeDeck].reloop;
     var status = reloopLight.status;
@@ -937,6 +955,10 @@ PioneerDDJ400.syncLongPressed = function(_channel, _control, value, _status, gro
         engine.setValue(deck, "sync_enabled", 1);
     }
 };
+
+//
+// Cycle tempo range -- THIS IS NOT MAPPED.
+//
 
 PioneerDDJ400.cycleTempoRange = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
@@ -1062,10 +1084,6 @@ PioneerDDJ400.hotcuePadFunction = function(property, padNum) {
 //
 // Beat loop pads
 //
-
-PioneerDDJ400.beatLoopPadLoopLengths = [
-    "0.25", "0.5", "1", "2", "4", "8", "16", "32"
-];
 
 PioneerDDJ400.beatLoopPadFunction = function(property) {
     return function(_channel, _control, value, _status, group) {
