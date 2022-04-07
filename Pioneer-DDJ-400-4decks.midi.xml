@@ -4,7 +4,7 @@
         <name>Pioneer DDJ-400 4 Decks</name>
         <author>apmiller108</author>
         <description>Midi Mapping for the Pioneer DDJ-400 with 4 Deck Control based on the existing 2 deck mapping</description>
-        <forums></forums>
+        <forums>https://mixxx.discourse.group/t/4-deck-pioneer-ddj-400-mapping/24649</forums>
     </info>
     <controller id="DDJ-400">
         <scriptfiles>

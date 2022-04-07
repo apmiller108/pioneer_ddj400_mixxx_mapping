@@ -73,9 +73,8 @@ This is based on the [existing 2-deck script mapping](https://manual.mixxx.org/2
 - [x] Configure VU meter
 - [x] Update README with instructions
 - [x] Move LEVEL/DEPTH + SHIFT customization to a branch (beatFxLevelDepthRotate)
-- [ ] Post in [forum](https://mixxx.discourse.group/t/pioneer-ddj-400/17476) for feedback
-- [ ] Post in [Controller mappings forum](https://mixxx.discourse.group/c/controller-mappings/10) for feedback
-- [ ] Update `forums` XML node with link
+- [x] Post in [Controller mappings forum](https://mixxx.discourse.group/c/controller-mappings/10) for feedback
+- [x] Update `forums` XML node with link
 - [ ] Figure out something to do with BEAT FX for channels 3 and 4
 
 ## Resources
