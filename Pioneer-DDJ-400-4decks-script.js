@@ -689,6 +689,7 @@ PioneerDDJ400.beatFxLevelDepthRotate = function(_channel, _control, value) {
     }
 };
 
+// Scrolls next/prev fx
 PioneerDDJ400.beatFxSelectPreviousEffect = function(_channel, _control, value) {
     engine.setValue(PioneerDDJ400.focusedFxGroup(), "prev_effect", value);
 };
@@ -697,6 +698,7 @@ PioneerDDJ400.beatFxSelectNextEffect = function(_channel, _control, value) {
     engine.setValue(PioneerDDJ400.focusedFxGroup(), "next_effect", value);
 };
 
+// Focuses FX 1, 2, or 3 within effect unit 1
 PioneerDDJ400.beatFxLeftPressed = function(_channel, _control, value) {
     if (value === 0) { return; }
 
@@ -722,6 +724,7 @@ PioneerDDJ400.beatFxOnOffPressed = function(_channel, _control, value) {
     engine.setValue(PioneerDDJ400.focusedFxGroup(), "enabled", toggleEnabled);
 };
 
+// TODO: this turns off all effects and sets fx mix to 0. Repurpose this or have it also work on effect unit 2
 PioneerDDJ400.beatFxOnOffShiftPressed = function(_channel, _control, value) {
     if (value === 0) { return; }
 
@@ -738,12 +741,20 @@ PioneerDDJ400.beatFxOnOffShiftPressed = function(_channel, _control, value) {
 PioneerDDJ400.beatFxChannel = function(_channel, control, value, _status, group) {
     if (value === 0x00) { return; }
 
+    if (PioneerDDJ400.shiftButtonDown[0] || PioneerDDJ400.shiftButtonDown[1]) {
+        group = "[EffectRack1_EffectUnit2]";
+    }
+
     var enableChannel1 = control === 0x10 ? 1 : 0,
         enableChannel2 = control === 0x11 ? 1 : 0,
         enableMaster = control === 0x14 ? 1 : 0;
 
     engine.setValue(group, "group_[Channel1]_enable", enableChannel1);
+    engine.setValue(group, "group_[Channel3]_enable", enableChannel1);
+
     engine.setValue(group, "group_[Channel2]_enable", enableChannel2);
+    engine.setValue(group, "group_[Channel4]_enable", enableChannel2);
+
     engine.setValue(group, "group_[Master]_enable", enableMaster);
 };
 
