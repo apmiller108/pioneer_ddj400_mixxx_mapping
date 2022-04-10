@@ -448,8 +448,10 @@ PioneerDDJ400.toggleDeck = function(channel, control, value, status, group) {
         var newQuickFxGroup = PioneerDDJ400.quickEffectRacks[newGroupNum - 1];
         PioneerDDJ400.groups[quickFxGroup] = newQuickFxGroup;
 
-        // Setup soft takoevers. Doing this here instead of on `init()` where
-        // it seemms to render from the call to `sendSysexMsg` useless.
+        // Setup soft takoevers. Doing this here instead of on `init()` where it
+        // seemms to render from the call to `sendSysexMsg` useless. Note that
+        // softTakeoverIgnoreNextValue is implemented in the functions for each
+        // parameter.
         PioneerDDJ400.channels.forEach(function(channel) {
             engine.softTakeover(channel, "rate", true);
             engine.softTakeover(channel, "pregain", true);
@@ -1057,6 +1059,8 @@ PioneerDDJ400.tempoSliderMSB = function(channel, control, value, status, group) 
 PioneerDDJ400.tempoSliderLSB = function(channel, control, value, status, group) {
     var deck = PioneerDDJ400.groups[group];
     var fullValue = (PioneerDDJ400.highResMSB[deck].tempoSlider << 7) + value;
+
+    PioneerDDJ400.parameterSoftTakeoverIngoreNextValue(deck, "rate");
 
     engine.setValue(
         deck,
