@@ -771,7 +771,7 @@ PioneerDDJ400.reverseRoll = function(_channel, _control, value, _status, group) 
 
 PioneerDDJ400.cuePressed = function(_channel, _control, value, _status, group) {
     var deck = PioneerDDJ400.groups[group];
-    if (value) {
+    if (!isNaN(value)) {
         engine.setValue(deck, "cue_default", value);
     }
 };
